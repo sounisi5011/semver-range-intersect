@@ -16,5 +16,9 @@
   "dependencies": {
     "@types/semver": "^6.0.1",
     "semver": "^6.2.0"
+  },
+  "devDependencies": {
+    "husky": "^3.0.0",
+    "lint-staged": "^9.1.0"
   }
 }
