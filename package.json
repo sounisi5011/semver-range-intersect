@@ -12,5 +12,9 @@
   "main": "dist/index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/semver": "^6.0.1",
+    "semver": "^6.2.0"
   }
 }
