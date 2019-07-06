@@ -10,6 +10,7 @@
   "license": "MIT",
   "author": "sounisi5011",
   "main": "dist/index",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -37,6 +38,9 @@
     "semver": "^6.2.0"
   },
   "devDependencies": {
+    "@types/node": "^12.0.12",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^6.0.0",
     "eslint-config-standard": "^12.0.0",
@@ -50,6 +54,8 @@
     "lint-staged": "^9.1.0",
     "prettier": "^1.18.2",
     "prettier-package-json": "^2.1.0",
-    "sort-package-json": "^1.22.1"
+    "sort-package-json": "^1.22.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
   }
 }
