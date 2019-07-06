@@ -13,6 +13,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "!(package).json|*.{yaml,yml}": [
+      "git add"
+    ],
+    "*.ts": [
+      "git add"
+    ],
+    "package.json": [
+      "git add"
+    ]
+  },
   "dependencies": {
     "@types/semver": "^6.0.1",
     "semver": "^6.2.0"
