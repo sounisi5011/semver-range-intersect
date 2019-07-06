@@ -1,0 +1,16 @@
+{
+  "name": "semver-range-intersect",
+  "version": "0.0.0",
+  "description": "Get the intersection of multiple semver ranges.",
+  "keywords": [
+    "intersect",
+    "semver",
+    "version"
+  ],
+  "license": "MIT",
+  "author": "sounisi5011",
+  "main": "dist/index",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
