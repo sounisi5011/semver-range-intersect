@@ -23,6 +23,7 @@
       "git add"
     ],
     "*.ts": [
+      "eslint --fix",
       "git add"
     ],
     "package.json": [
@@ -36,6 +37,15 @@
     "semver": "^6.2.0"
   },
   "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-simple-import-sort": "^4.0.0",
+    "eslint-plugin-standard": "^4.0.0",
     "husky": "^3.0.0",
     "lint-staged": "^9.1.0",
     "prettier": "^1.18.2",
