@@ -7,7 +7,6 @@ import {
 } from './utils';
 
 export interface SingleRangeInterface {
-    raw: string;
     toString(): string;
     intersect(
         singleRange: SingleVer | SingleRange,
@@ -16,11 +15,9 @@ export interface SingleRangeInterface {
 
 export class SingleVer implements SingleRangeInterface {
     public comp: semver.Comparator;
-    public raw: string;
 
-    public constructor(comp: semver.Comparator, raw: string) {
+    public constructor(comp: semver.Comparator) {
         this.comp = comp;
-        this.raw = raw;
     }
 
     public toString(): string {
@@ -39,16 +36,13 @@ export class SingleVer implements SingleRangeInterface {
 export class SingleRange implements SingleRangeInterface {
     public lowerBound: semver.Comparator;
     public upperBound: semver.Comparator;
-    public raw: string;
 
     public constructor(
         lowerBound: semver.Comparator,
         upperBound: semver.Comparator,
-        raw: string,
     ) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
-        this.raw = raw;
     }
 
     public toString(): string {
@@ -71,7 +65,6 @@ export class SingleRange implements SingleRangeInterface {
                         this.upperBound,
                         singleRange.upperBound,
                     ]),
-                    `${this.raw} ${singleRange.raw}`,
                 );
             }
         } else {
@@ -84,8 +77,6 @@ export class SingleRange implements SingleRangeInterface {
 export function createSingleRange(
     comparatorList: readonly semver.Comparator[],
 ): SingleVer | SingleRange | null {
-    const rawRangeStr = comparatorList.map(String).join(' ');
-
     const equalsComparatorList = comparatorList.filter(
         filterOperator(['', '=']),
     );
@@ -94,10 +85,9 @@ export function createSingleRange(
             return new SingleRange(
                 getLowerBoundComparator(comparatorList),
                 getUpperBoundComparator(comparatorList),
-                rawRangeStr,
             );
         case 1:
-            return new SingleVer(equalsComparatorList[0], rawRangeStr);
+            return new SingleVer(equalsComparatorList[0]);
         default:
             // Invalid range
             return null;
