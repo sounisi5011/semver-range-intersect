@@ -31,6 +31,9 @@ validateOutputRangeMacro.title = (
 test('intersect() returns string type value', t => {
     t.is(typeof intersect('1.0.0'), 'string');
 });
+test('intersect() returns null if the argument version is invalid', t => {
+    t.is(intersect('a.b.c'), null);
+});
 
 /*
  * @see https://github.com/snyamathi/semver-intersect/blob/491aebfe04cf1c7a6db89a425cd56c9af2c44902/tests/unit/semver-intersect.js#L137-L207
