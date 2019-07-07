@@ -5,13 +5,15 @@ import { isIntersectRanges } from './utils';
 
 export function intersect(...ranges: string[]): string | null {
     try {
-        const rangeList = ranges.map(rangeStr => new semver.Range(rangeStr));
+        const semverRangeList = ranges.map(
+            rangeStr => new semver.Range(rangeStr),
+        );
 
-        if (!isIntersectRanges(rangeList)) {
+        if (!isIntersectRanges(semverRangeList)) {
             return null;
         }
 
-        const intersectRange = rangeList
+        const intersectRange = semverRangeList
             .map(range => new MultiRange(range.set))
             .reduce(
                 (multiRangeA, multiRangeB) =>

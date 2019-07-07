@@ -20,19 +20,24 @@ export function filterOperator(
     return comparator => operatorList.includes(comparator.operator);
 }
 
-export function isIntersectRanges(rangeList: readonly semver.Range[]): boolean {
-    return rangeList.every((rangeA, index, rangeList) =>
+export function isIntersectRanges(
+    semverRangeList: readonly semver.Range[],
+): boolean {
+    return semverRangeList.every((rangeA, index, rangeList) =>
         rangeList.slice(index + 1).every(rangeB => rangeA.intersects(rangeB)),
     );
 }
 
-export function stripSemVerPrerelease(version: semver.SemVer): string {
-    if (!version.prerelease.length) {
-        return version.version;
+export function stripSemVerPrerelease(semverVersion: semver.SemVer): string {
+    if (!semverVersion.prerelease.length) {
+        return semverVersion.version;
     }
-    const newVersion = new semver.SemVer(version.version, version.options);
-    newVersion.prerelease = [];
-    return newVersion.format();
+    const newSemverVersion = new semver.SemVer(
+        semverVersion.version,
+        semverVersion.options,
+    );
+    newSemverVersion.prerelease = [];
+    return newSemverVersion.format();
 }
 
 export function getLowerBoundComparator(

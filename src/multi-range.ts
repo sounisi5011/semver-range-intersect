@@ -16,7 +16,7 @@ export class MultiRange {
     }
 
     public constructor(
-        rangeSet:
+        rangeList:
             | (readonly (
                   | SingleVer
                   | SingleRange
@@ -24,8 +24,8 @@ export class MultiRange {
                   | (readonly semver.Comparator[]))[])
             | null,
     ) {
-        if (rangeSet) {
-            const singleRangeList = rangeSet.map(
+        if (rangeList) {
+            const singleRangeList = rangeList.map(
                 singleRangeOrComparatorList => {
                     if (
                         isSingleRange(singleRangeOrComparatorList) ||
@@ -52,7 +52,7 @@ export class MultiRange {
 
     public intersect(multiRange: MultiRange): MultiRange {
         if (this.valid && multiRange.valid) {
-            const multiRange2 = this.set
+            const singleRangeList = this.set
                 .map(singleRangeA =>
                     multiRange.set.map(singleRangeB =>
                         singleRangeA.intersect(singleRangeB),
@@ -61,7 +61,7 @@ export class MultiRange {
                 .reduce((a, b) => [...a, ...b])
                 .filter(isNotNull);
 
-            return new MultiRange(multiRange2);
+            return new MultiRange(singleRangeList);
         } else if (this.valid) {
             return this;
         } else if (multiRange.valid) {
