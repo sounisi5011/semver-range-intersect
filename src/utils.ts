@@ -26,6 +26,15 @@ export function isIntersectRanges(rangeList: readonly semver.Range[]): boolean {
     );
 }
 
+export function stripSemVerPrerelease(version: semver.SemVer): string {
+    if (!version.prerelease.length) {
+        return version.version;
+    }
+    const newVersion = new semver.SemVer(version.version, version.options);
+    newVersion.prerelease = [];
+    return newVersion.format();
+}
+
 export function getLowerBoundComparator(
     comparatorList: readonly semver.Comparator[],
 ): semver.Comparator {
@@ -36,6 +45,26 @@ export function getLowerBoundComparator(
         return validComparatorList.reduce((a, b) => {
             const semverCmp = semver.compare(a.semver, b.semver);
             if (a.operator === b.operator || semverCmp !== 0) {
+                const semverCmpMain = a.semver.compareMain(b.semver);
+                if (
+                    semverCmpMain !== 0 &&
+                    a.semver.prerelease.length &&
+                    b.semver.prerelease.length
+                ) {
+                    // ^1.9.0-alpha / ^1.9.1-alpha ... ^1.9.1
+                    if (semverCmpMain > 0) {
+                        return new semver.Comparator(
+                            a.operator + stripSemVerPrerelease(a.semver),
+                            a.options,
+                        );
+                    } else {
+                        return new semver.Comparator(
+                            b.operator + stripSemVerPrerelease(b.semver),
+                            b.options,
+                        );
+                    }
+                }
+
                 // >2.0.0  / >3.0.0  ... >3.0.0
                 // >=1.0.0 / >=1.1.0 ... >=1.1.0
                 // >2.0.0  / >=2.0.1 ... >=2.0.1
@@ -73,6 +102,29 @@ export function getUpperBoundComparator(
         return validComparatorList.reduce((a, b) => {
             const semverCmp = semver.compare(a.semver, b.semver);
             if (a.operator === b.operator || semverCmp !== 0) {
+                const semverCmpMain = a.semver.compareMain(b.semver);
+                if (
+                    semverCmpMain !== 0 &&
+                    a.semver.prerelease.length &&
+                    b.semver.prerelease.length
+                ) {
+                    // <=1.9.0-alpha / <=1.9.1-alpha ... <1.9.0
+                    // <1.9.0-alpha  / <1.9.1-alpha  ... <1.9.0
+                    // <=1.9.0-alpha / <1.9.1-alpha  ... <1.9.0
+                    // <1.9.0-alpha  / <=1.9.1-alpha ... <1.9.0
+                    if (semverCmpMain < 0) {
+                        return new semver.Comparator(
+                            `<${stripSemVerPrerelease(a.semver)}`,
+                            a.options,
+                        );
+                    } else {
+                        return new semver.Comparator(
+                            `<${stripSemVerPrerelease(b.semver)}`,
+                            b.options,
+                        );
+                    }
+                }
+
                 // <2.0.0  / <3.0.0  ... <2.0.0
                 // <=1.0.0 / <=1.1.0 ... <=1.0.0
                 // <2.0.0  / <=2.0.1 ... <2.0.0
