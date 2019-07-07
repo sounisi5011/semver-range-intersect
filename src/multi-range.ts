@@ -1,50 +1,73 @@
 import semver from 'semver';
 
 import {
-    getIntersectSingleRange,
-    getSingleRange,
+    createSingleRange,
     isSingleRange,
     SingleRange,
-    singleRange2string,
+    SingleVer,
 } from './single-range';
-import { uniqueArray } from './utils';
+import { isNoIncludeNull, isNotNull, uniqueArray } from './utils';
 
-type MultiRange = readonly SingleRange[];
+export class MultiRange {
+    public set: readonly (SingleVer | SingleRange)[];
 
-export function getMultiRange(
-    rangeSet: readonly (readonly semver.Comparator[])[],
-): MultiRange {
-    return rangeSet.map(comparatorList => getSingleRange(comparatorList));
-}
+    public get valid(): boolean {
+        return this.set.length >= 1;
+    }
 
-export function multiRange2string(multiRange: MultiRange): string {
-    return uniqueArray(multiRange.map(singleRange2string)).join(' || ');
-}
-
-export function getIntersectMultiRange(
-    multiRangeA: MultiRange | null,
-    multiRangeB: MultiRange | null,
-): MultiRange | null {
-    if (multiRangeA && multiRangeB) {
-        const multiRange: MultiRange = multiRangeA
-            .map(singleRangeA =>
-                multiRangeB.map(singleRangeB =>
-                    getIntersectSingleRange(singleRangeA, singleRangeB),
-                ),
-            )
-            .reduce((a, b) => [...a, ...b])
-            .filter(isSingleRange);
-
-        if (multiRange.length < 1) {
-            return null;
+    public constructor(
+        rangeSet:
+            | (readonly (
+                  | SingleVer
+                  | SingleRange
+                  | null
+                  | (readonly semver.Comparator[]))[])
+            | null,
+    ) {
+        if (rangeSet) {
+            const singleRangeList = rangeSet.map(
+                singleRangeOrComparatorList => {
+                    if (
+                        isSingleRange(singleRangeOrComparatorList) ||
+                        !singleRangeOrComparatorList
+                    ) {
+                        return singleRangeOrComparatorList;
+                    } else {
+                        return createSingleRange(singleRangeOrComparatorList);
+                    }
+                },
+            );
+            this.set = isNoIncludeNull(singleRangeList) ? singleRangeList : [];
+        } else {
+            this.set = [];
         }
+    }
 
-        return multiRange;
-    } else if (multiRangeA) {
-        return multiRangeA;
-    } else if (multiRangeB) {
-        return multiRangeB;
-    } else {
-        return null;
+    public toString(): string {
+        if (!this.valid) {
+            throw new Error('Invalid range');
+        }
+        return uniqueArray(this.set.map(String)).join(' || ');
+    }
+
+    public intersect(multiRange: MultiRange): MultiRange {
+        if (this.valid && multiRange.valid) {
+            const multiRange2 = this.set
+                .map(singleRangeA =>
+                    multiRange.set.map(singleRangeB =>
+                        singleRangeA.intersect(singleRangeB),
+                    ),
+                )
+                .reduce((a, b) => [...a, ...b])
+                .filter(isNotNull);
+
+            return new MultiRange(multiRange2);
+        } else if (this.valid) {
+            return this;
+        } else if (multiRange.valid) {
+            return multiRange;
+        } else {
+            return new MultiRange(null);
+        }
     }
 }

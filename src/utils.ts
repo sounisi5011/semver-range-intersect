@@ -1,11 +1,21 @@
 import semver from 'semver';
 
+export function isNotNull<T>(value: T | null): value is T {
+    return value !== null;
+}
+
 export function uniqueArray<T>(array: readonly T[]): readonly T[] {
     return [...new Set(array)];
 }
 
+export function isNoIncludeNull<T>(
+    value: readonly (T | null)[],
+): value is readonly T[] {
+    return value.every(isNotNull);
+}
+
 export function filterOperator(
-    operatorList: semver.Comparator['operator'][],
+    operatorList: readonly semver.Comparator['operator'][],
 ): (comparator: semver.Comparator) => boolean {
     return comparator => operatorList.includes(comparator.operator);
 }

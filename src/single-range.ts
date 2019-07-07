@@ -6,23 +6,84 @@ import {
     getUpperBoundComparator,
 } from './utils';
 
-export type SingleRange =
-    | {
-          raw: string;
-          equals: semver.Comparator;
-          lowerBound: null;
-          upperBound: null;
-      }
-    | {
-          raw: string;
-          equals: null;
-          lowerBound: semver.Comparator;
-          upperBound: semver.Comparator;
-      };
+export interface SingleRangeInterface {
+    raw: string;
+    toString(): string;
+    intersect(
+        singleRange: SingleVer | SingleRange,
+    ): SingleVer | SingleRange | null;
+}
 
-export function getSingleRange(
+export class SingleVer implements SingleRangeInterface {
+    public comp: semver.Comparator;
+    public raw: string;
+
+    public constructor(comp: semver.Comparator, raw: string) {
+        this.comp = comp;
+        this.raw = raw;
+    }
+
+    public toString(): string {
+        return this.comp.value;
+    }
+
+    public intersect(singleRange: SingleVer | SingleRange): SingleVer | null {
+        if (semver.intersects(String(this), String(singleRange))) {
+            return this;
+        } else {
+            return null;
+        }
+    }
+}
+
+export class SingleRange implements SingleRangeInterface {
+    public lowerBound: semver.Comparator;
+    public upperBound: semver.Comparator;
+    public raw: string;
+
+    public constructor(
+        lowerBound: semver.Comparator,
+        upperBound: semver.Comparator,
+        raw: string,
+    ) {
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.raw = raw;
+    }
+
+    public toString(): string {
+        return `${this.lowerBound.value} ${this.upperBound.value}`;
+    }
+
+    public intersect(
+        singleRange: SingleVer | SingleRange,
+    ): SingleVer | SingleRange | null {
+        if (semver.intersects(String(this), String(singleRange))) {
+            if (singleRange instanceof SingleVer) {
+                return singleRange;
+            } else {
+                return new SingleRange(
+                    getLowerBoundComparator([
+                        this.lowerBound,
+                        singleRange.lowerBound,
+                    ]),
+                    getUpperBoundComparator([
+                        this.upperBound,
+                        singleRange.upperBound,
+                    ]),
+                    `${this.raw} ${singleRange.raw}`,
+                );
+            }
+        } else {
+            // Invalid range
+            return null;
+        }
+    }
+}
+
+export function createSingleRange(
     comparatorList: readonly semver.Comparator[],
-): SingleRange {
+): SingleVer | SingleRange | null {
     const rawRangeStr = comparatorList.map(String).join(' ');
 
     const equalsComparatorList = comparatorList.filter(
@@ -30,67 +91,21 @@ export function getSingleRange(
     );
     switch (equalsComparatorList.length) {
         case 0:
-            break;
+            return new SingleRange(
+                getLowerBoundComparator(comparatorList),
+                getUpperBoundComparator(comparatorList),
+                rawRangeStr,
+            );
         case 1:
-            return {
-                raw: rawRangeStr,
-                equals: equalsComparatorList[0],
-                lowerBound: null,
-                upperBound: null,
-            };
+            return new SingleVer(equalsComparatorList[0], rawRangeStr);
         default:
-            throw new Error(`Invalid range: ${rawRangeStr}`);
-    }
-
-    return {
-        raw: rawRangeStr,
-        equals: null,
-        lowerBound: getLowerBoundComparator(comparatorList),
-        upperBound: getUpperBoundComparator(comparatorList),
-    };
-}
-
-export function isSingleRange(value: SingleRange | null): value is SingleRange {
-    return Boolean(value);
-}
-
-export function singleRange2string(singleRange: SingleRange): string {
-    if (singleRange.equals) {
-        return singleRange.equals.value;
-    } else {
-        return `${singleRange.lowerBound.value} ${singleRange.upperBound.value}`;
+            // Invalid range
+            return null;
     }
 }
 
-export function getIntersectSingleRange(
-    singleRangeA: SingleRange,
-    singleRangeB: SingleRange,
-): SingleRange | null {
-    if (
-        semver.intersects(
-            singleRange2string(singleRangeA),
-            singleRange2string(singleRangeB),
-        )
-    ) {
-        if (singleRangeA.equals) {
-            return singleRangeA;
-        } else if (singleRangeB.equals) {
-            return singleRangeB;
-        } else {
-            return {
-                raw: `${singleRangeA.raw} ${singleRangeB.raw}`,
-                equals: null,
-                lowerBound: getLowerBoundComparator([
-                    singleRangeA.lowerBound,
-                    singleRangeB.lowerBound,
-                ]),
-                upperBound: getUpperBoundComparator([
-                    singleRangeA.upperBound,
-                    singleRangeB.upperBound,
-                ]),
-            };
-        }
-    } else {
-        return null;
-    }
+export function isSingleRange(
+    value: unknown,
+): value is SingleVer | SingleRange {
+    return value instanceof SingleVer || value instanceof SingleRange;
 }
