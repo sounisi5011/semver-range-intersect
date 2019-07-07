@@ -7,7 +7,7 @@ const validateOutputRangeMacro: Macro<[string[], string | null]> = (
     t,
     input,
     expected,
-) => {
+): void => {
     const intersectRange = intersect(...input);
     if (expected && intersectRange) {
         t.is(
