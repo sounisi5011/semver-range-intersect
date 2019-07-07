@@ -54,6 +54,14 @@ test(
 );
 test(validateOutputRangeMacro, ['1.0.0 - 1.5.3'], '1.0.0 - 1.5.3');
 
+test(validateOutputRangeMacro, ['1.1 - 1.3', '1.2 - 1.4'], '1.1 - 1.4');
+test(
+    validateOutputRangeMacro,
+    ['1.0.1 - 1.0.11', '1.0.5 - 1.0.15', '1.0.16 - 1.1.0'],
+    '1.0.1 - 1.0.15 || 1.0.16 - 1.1.0',
+);
+test(validateOutputRangeMacro, ['2.2 - 2.9', '2.1.6 - 2.8.5'], '2.1.6 - 2.9');
+
 test(validateOutputRangeMacro, ['>=8.0.0 >=8.16.0'], '>=8.16.0');
 test(validateOutputRangeMacro, ['>=8.2.0 >=8.1.0 <8.3.0'], '>=8.2.0 <8.3.0');
 test(validateOutputRangeMacro, ['^8.0.0 || ^8.1.0'], '^8.0.0 || ^8.1.0');
