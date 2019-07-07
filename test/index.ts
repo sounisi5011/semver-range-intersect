@@ -41,6 +41,11 @@ test(validateOutputRangeMacro, ['^4.0.0', '~4.3.0'], '~4.3.0');
 test(validateOutputRangeMacro, ['^1.0.0-alpha.3', '^1.2.0'], '^1.2.0');
 test(
     validateOutputRangeMacro,
+    ['^1.0.0-alpha.3', '^1.0.0-alpha.4'],
+    '^1.0.0-alpha.4',
+);
+test(
+    validateOutputRangeMacro,
     ['^0.14.0-beta2', '^0.14.0-beta3'],
     '^0.14.0-beta3',
 );
@@ -49,6 +54,7 @@ test(
     ['^0.14.0-beta', '^0.14.0-beta4'],
     '^0.14.0-beta4',
 );
+test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.1-alpha'], null);
 test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.0-beta'], '^1.9.0-beta');
 test(validateOutputRangeMacro, ['^1.9.0-beta', '^1.9.0-alpha'], '^1.9.0-beta');
 test(
@@ -56,13 +62,21 @@ test(
     ['^1.9.0-alpha.1', '^1.9.0-beta.2'],
     '^1.9.0-beta.2',
 );
+test(validateOutputRangeMacro, ['1.9.0-alpha.1', '^1.9.0-alpha.2'], null);
+test(validateOutputRangeMacro, ['1.9.0-alpha.1', '1.9.0-alpha.0'], null);
+test(validateOutputRangeMacro, ['1.9.0-rc3', '^1.9.0-rc4'], null);
 test(validateOutputRangeMacro, ['1.5.16', '^1.0.0'], '1.5.16');
 test(
     validateOutputRangeMacro,
     ['^4.0.0', '~4.3.89', '~4.3.24', '~4.3.63'],
     '~4.3.89',
 );
+test(validateOutputRangeMacro, ['^4.0.0', '~4.3.0', '^4.4.0'], null);
 test(validateOutputRangeMacro, ['1.0.0 - 1.5.3'], '1.0.0 - 1.5.3');
+test(validateOutputRangeMacro, ['^5.0.0', '^4.0.1'], null);
+test(validateOutputRangeMacro, ['^5.0.0', '^3.0.0'], null);
+test(validateOutputRangeMacro, ['~5.1.0', '~5.2.0'], null);
+test(validateOutputRangeMacro, ['^0.5.0', '^0.4.0'], null);
 
 test(validateOutputRangeMacro, ['1.1 - 1.3', '1.2 - 1.4'], '1.2 - 1.3');
 test(
