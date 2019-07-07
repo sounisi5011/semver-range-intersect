@@ -54,7 +54,7 @@ test(
     ['^0.14.0-beta', '^0.14.0-beta4'],
     '^0.14.0-beta4',
 );
-test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.1-alpha'], null);
+test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.1-alpha'], '^1.9.1'); // Note: Is the correct return value "^1.9.1"? Or null? I do not understand well.
 test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.0-beta'], '^1.9.0-beta');
 test(validateOutputRangeMacro, ['^1.9.0-beta', '^1.9.0-alpha'], '^1.9.0-beta');
 test(
