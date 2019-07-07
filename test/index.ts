@@ -78,6 +78,49 @@ test(validateOutputRangeMacro, ['^5.0.0', '^3.0.0'], null);
 test(validateOutputRangeMacro, ['~5.1.0', '~5.2.0'], null);
 test(validateOutputRangeMacro, ['^0.5.0', '^0.4.0'], null);
 
+// Note: I am not sure if this test is correct
+[
+    ['<=1.9.0-alpha', '<=1.9.1-alpha'],
+    ['<1.9.0-alpha', '<1.9.1-alpha'],
+    ['<=1.9.0-alpha', '<1.9.1-alpha'],
+    ['<1.9.0-alpha', '<=1.9.1-alpha'],
+].forEach(inputRangeList => {
+    [
+        '<1.9.0-alpha',
+        '<1.9.0',
+        '<=1.9.0-alpha',
+        '<=1.9.0',
+        '<1.9.1-alpha',
+        '<1.9.1',
+        '<=1.9.1-alpha',
+        '<=1.9.1',
+    ]
+        .filter(expectedRange =>
+            [
+                '1.8.99',
+                '1.9.0-1',
+                '1.9.0-alpha',
+                '1.9.0-beta',
+                '1.9.0',
+                '1.9.1-1',
+                '1.9.1-alpha',
+                '1.9.1-beta',
+                '1.9.1',
+                '1.9.2-1',
+                '1.9.2-alpha',
+                '1.9.2-beta',
+                '1.9.2',
+            ].every(
+                v =>
+                    inputRangeList.every(r => semver.satisfies(v, r)) ===
+                    semver.satisfies(v, expectedRange),
+            ),
+        )
+        .forEach(expectedRange => {
+            test(validateOutputRangeMacro, inputRangeList, expectedRange);
+        });
+});
+
 test(validateOutputRangeMacro, ['1.1 - 1.3', '1.2 - 1.4'], '1.2 - 1.3');
 test(
     validateOutputRangeMacro,
