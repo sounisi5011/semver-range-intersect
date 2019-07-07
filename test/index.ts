@@ -8,13 +8,14 @@ const validateOutputRangeMacro: Macro<[string[], string | null]> = (
     input,
     expected,
 ) => {
-    if (expected) {
+    const intersectRange = intersect(...input);
+    if (expected && intersectRange) {
         t.is(
-            semver.validRange(intersect(...input)),
-            semver.validRange(expected),
+            semver.validRange(intersectRange) || intersectRange,
+            semver.validRange(expected) || expected,
         );
     } else {
-        t.is(intersect(...input), expected);
+        t.is(intersectRange, expected);
     }
 };
 validateOutputRangeMacro.title = (
@@ -23,7 +24,9 @@ validateOutputRangeMacro.title = (
     expected,
 ): string =>
     (providedTitle ? `${providedTitle} ` : '') +
-    `intersect(${input.map(v => `"${v}"`).join(', ')}) === "${expected}"`;
+    `intersect(${input
+        .map(v => JSON.stringify(v))
+        .join(', ')}) === ${JSON.stringify(expected)}`;
 
 test('intersect() returns string type value', t => {
     t.is(typeof intersect('1.0.0'), 'string');
