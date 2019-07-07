@@ -20,6 +20,12 @@ export function filterOperator(
     return comparator => operatorList.includes(comparator.operator);
 }
 
+export function isIntersectRanges(rangeList: readonly semver.Range[]): boolean {
+    return rangeList.every((rangeA, index, rangeList) =>
+        rangeList.slice(index + 1).every(rangeB => rangeA.intersects(rangeB)),
+    );
+}
+
 export function getLowerBoundComparator(
     comparatorList: readonly semver.Comparator[],
 ): semver.Comparator {
