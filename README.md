@@ -1,5 +1,13 @@
 # semver-range-intersect
 
+[![npm package](https://img.shields.io/npm/v/semver-range-intersect.svg)][npm]
+[![GitHub License](https://img.shields.io/github/license/sounisi5011/semver-range-intersect.svg)][github-license]
+[![Build Status](https://travis-ci.com/sounisi5011/semver-range-intersect.svg?branch=master)](https://travis-ci.com/sounisi5011/semver-range-intersect)
+[![Maintainability Status](https://api.codeclimate.com/v1/badges/f6e23b313a631c54ac90/maintainability)](https://codeclimate.com/github/sounisi5011/semver-range-intersect/maintainability)
+
+[npm]: https://www.npmjs.com/package/semver-range-intersect
+[github-license]: https://github.com/sounisi5011/semver-range-intersect/blob/master/LICENSE
+
 Get the intersection of multiple semver ranges.
 
 ## Install
