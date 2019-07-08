@@ -1,16 +1,30 @@
 {
   "name": "semver-range-intersect",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Get the intersection of multiple semver ranges.",
   "keywords": [
     "intersect",
     "semver",
     "version"
   ],
+  "homepage": "https://github.com/sounisi5011/semver-range-intersect#readme",
+  "bugs": {
+    "url": "https://github.com/sounisi5011/semver-range-intersect/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sounisi5011/semver-range-intersect.git"
+  },
   "license": "MIT",
   "author": "sounisi5011",
+  "files": [
+    "dist/"
+  ],
   "main": "dist/index",
   "types": "dist/index.d.ts",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "del ./dist/*",
