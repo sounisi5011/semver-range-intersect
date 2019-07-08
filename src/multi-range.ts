@@ -25,8 +25,8 @@ export class MultiRange {
             | null,
     ) {
         if (rangeList) {
-            const singleRangeList = rangeList.map(
-                singleRangeOrComparatorList => {
+            const singleRangeList = rangeList
+                .map(singleRangeOrComparatorList => {
                     if (
                         isSingleRange(singleRangeOrComparatorList) ||
                         !singleRangeOrComparatorList
@@ -35,8 +35,33 @@ export class MultiRange {
                     } else {
                         return createSingleRange(singleRangeOrComparatorList);
                     }
-                },
-            );
+                })
+                .reduce(
+                    (singleRangeList, singleRangeB) => {
+                        if (singleRangeB) {
+                            for (const [
+                                index,
+                                singleRangeA,
+                            ] of singleRangeList.entries()) {
+                                if (singleRangeA) {
+                                    const mergedSingleRange = singleRangeA.merge(
+                                        singleRangeB,
+                                    );
+                                    if (mergedSingleRange) {
+                                        singleRangeList.splice(
+                                            index,
+                                            1,
+                                            mergedSingleRange,
+                                        );
+                                        return singleRangeList;
+                                    }
+                                }
+                            }
+                        }
+                        return [...singleRangeList, singleRangeB];
+                    },
+                    [] as (SingleVer | SingleRange | null)[],
+                );
             this.set = isNoIncludeNull(singleRangeList) ? singleRangeList : [];
         } else {
             this.set = [];
