@@ -147,6 +147,14 @@ test(
     '1.0.1 - 1.0.15 || 1.0.16 - 1.1.0',
 );
 test(validateOutputRangeMacro, ['2.2 - 2.9 || 2.1.6 - 2.8.5'], '2.1.6 - 2.9');
+test(validateOutputRangeMacro, ['^8 || 8.3.6 || 8.19.7'], '^8');
+test(validateOutputRangeMacro, ['8.3.6 || ^8 || 8.19.7'], '^8');
+test(validateOutputRangeMacro, ['8.3.6 || 8.19.7 || ^8'], '^8');
+test(validateOutputRangeMacro, ['^8 || 8.3.6 || ^8 || 8.19.7'], '^8');
+test(validateOutputRangeMacro, ['^8 || ^8 || ^8'], '^8');
+test(validateOutputRangeMacro, ['^8 || ^9 || ^8'], '^8 || ^9');
+test(validateOutputRangeMacro, ['^9 || ^8 || ^8'], '^9 || ^8');
+test(validateOutputRangeMacro, ['^9 || ^8 || ^9'], '^9 || ^8');
 
 test(
     validateOutputRangeMacro,
