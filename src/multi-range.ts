@@ -8,6 +8,61 @@ import {
 } from './single-range';
 import { isNoIncludeNull, isNotNull, uniqueArray } from './utils';
 
+export function normalizeSingleRangeList(
+    singleRangeList: readonly (SingleVer | SingleRange | null)[],
+): readonly (SingleVer | SingleRange | null)[] {
+    return singleRangeList.reduce(
+        (singleRangeList, singleRange) => {
+            if (!singleRange) {
+                return [...singleRangeList, singleRange];
+            }
+
+            let insertFirst = false;
+            const removeIndexList: number[] = [];
+            const appendSingleRange = singleRangeList.reduce<
+                typeof singleRange | void
+            >((appendSingleRange, insertedSingleRange, index) => {
+                if (insertedSingleRange && appendSingleRange) {
+                    const mergedSingleRange = insertedSingleRange.merge(
+                        appendSingleRange,
+                    );
+                    if (mergedSingleRange) {
+                        if (
+                            String(mergedSingleRange) ===
+                            String(insertedSingleRange)
+                        ) {
+                            return;
+                        } else {
+                            removeIndexList.push(index);
+                            if (
+                                insertedSingleRange instanceof SingleRange &&
+                                appendSingleRange instanceof SingleRange
+                            ) {
+                                insertFirst = true;
+                            }
+                            return mergedSingleRange;
+                        }
+                    }
+                }
+                return appendSingleRange;
+            }, singleRange);
+
+            const removedSingleRangeList = singleRangeList.filter(
+                (_, index) => !removeIndexList.includes(index),
+            );
+            if (appendSingleRange) {
+                if (insertFirst) {
+                    return [appendSingleRange, ...removedSingleRangeList];
+                } else {
+                    return [...removedSingleRangeList, appendSingleRange];
+                }
+            }
+            return removedSingleRangeList;
+        },
+        [] as (SingleVer | SingleRange | null)[],
+    );
+}
+
 export class MultiRange {
     public set: readonly (SingleVer | SingleRange)[];
 
@@ -25,8 +80,8 @@ export class MultiRange {
             | null,
     ) {
         if (rangeList) {
-            const singleRangeList = rangeList
-                .map(singleRangeOrComparatorList => {
+            const singleRangeList = normalizeSingleRangeList(
+                rangeList.map(singleRangeOrComparatorList => {
                     if (
                         isSingleRange(singleRangeOrComparatorList) ||
                         !singleRangeOrComparatorList
@@ -35,33 +90,8 @@ export class MultiRange {
                     } else {
                         return createSingleRange(singleRangeOrComparatorList);
                     }
-                })
-                .reduce(
-                    (singleRangeList, singleRangeB) => {
-                        if (singleRangeB) {
-                            for (const [
-                                index,
-                                singleRangeA,
-                            ] of singleRangeList.entries()) {
-                                if (singleRangeA) {
-                                    const mergedSingleRange = singleRangeA.merge(
-                                        singleRangeB,
-                                    );
-                                    if (mergedSingleRange) {
-                                        singleRangeList.splice(
-                                            index,
-                                            1,
-                                            mergedSingleRange,
-                                        );
-                                        return singleRangeList;
-                                    }
-                                }
-                            }
-                        }
-                        return [...singleRangeList, singleRangeB];
-                    },
-                    [] as (SingleVer | SingleRange | null)[],
-                );
+                }),
+            );
             this.set = isNoIncludeNull(singleRangeList) ? singleRangeList : [];
         } else {
             this.set = [];
