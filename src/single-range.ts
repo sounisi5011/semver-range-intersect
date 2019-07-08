@@ -91,7 +91,21 @@ export class SingleRange implements SingleRangeInterface {
                 return this;
             } else {
                 const lowerBound = ((a, b) => {
-                    const semverCmp = semver.compare(a.semver, b.semver);
+                    const semverA: semver.SemVer | {} = a.semver;
+                    const semverB: semver.SemVer | {} = b.semver;
+
+                    // >2.0.0  / *       ... *
+                    // >=2.0.0 / *       ... *
+                    // *       / >2.0.0  ... *
+                    // *       / >=2.0.0 ... *
+                    // *       / *       ... *
+                    if (!(semverA instanceof semver.SemVer)) {
+                        return a;
+                    } else if (!(semverB instanceof semver.SemVer)) {
+                        return b;
+                    }
+
+                    const semverCmp = semver.compare(semverA, semverB);
                     if (a.operator === b.operator || semverCmp !== 0) {
                         // >2.0.0  / >3.0.0  ... >2.0.0
                         // >=1.0.0 / >=1.1.0 ... >=1.0.0
@@ -115,7 +129,21 @@ export class SingleRange implements SingleRangeInterface {
                     }
                 })(this.lowerBound, singleRange.lowerBound);
                 const upperBound = ((a, b) => {
-                    const semverCmp = semver.compare(a.semver, b.semver);
+                    const semverA: semver.SemVer | {} = a.semver;
+                    const semverB: semver.SemVer | {} = b.semver;
+
+                    // <2.0.0  / *       ... *
+                    // <=2.0.0 / *       ... *
+                    // *       / <2.0.0  ... *
+                    // *       / <=2.0.0 ... *
+                    // *       / *       ... *
+                    if (!(semverA instanceof semver.SemVer)) {
+                        return a;
+                    } else if (!(semverB instanceof semver.SemVer)) {
+                        return b;
+                    }
+
+                    const semverCmp = semver.compare(semverA, semverB);
                     if (a.operator === b.operator || semverCmp !== 0) {
                         // <2.0.0  / <3.0.0  ... <3.0.0
                         // <=1.0.0 / <=1.1.0 ... <=1.1.0
