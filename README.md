@@ -43,6 +43,10 @@ npm install
 npm test
 ```
 
+## Contributing
+
+see [CONTRIBUTING.md](https://github.com/sounisi5011/semver-range-intersect/blob/master/CONTRIBUTING.md)
+
 ## Related
 
 * [semver-intersect](https://github.com/snyamathi/semver-intersect)
