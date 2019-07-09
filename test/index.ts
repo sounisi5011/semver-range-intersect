@@ -81,6 +81,14 @@ test(validateOutputRangeMacro, ['^5.0.0', '^3.0.0'], null);
 test(validateOutputRangeMacro, ['~5.1.0', '~5.2.0'], null);
 test(validateOutputRangeMacro, ['^0.5.0', '^0.4.0'], null);
 
+// see https://github.com/sounisi5011/semver-range-intersect/issues/12
+test(validateOutputRangeMacro, ['x.x.x'], '*');
+test(validateOutputRangeMacro, ['*.*.*'], '*');
+test(validateOutputRangeMacro, ['x'], '*');
+test(validateOutputRangeMacro, ['X'], '*');
+test(validateOutputRangeMacro, ['*'], '*');
+test(validateOutputRangeMacro, [''], '*');
+
 // Note: I am not sure if this test is correct
 [
     ['<=1.9.0-alpha', '<=1.9.1-alpha'],
