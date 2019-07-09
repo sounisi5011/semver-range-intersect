@@ -56,7 +56,9 @@ export class SingleRange implements SingleRangeInterface {
     }
 
     public toString(): string {
-        return `${this.lowerBound.value} ${this.upperBound.value}`;
+        return [this.lowerBound.value, this.upperBound.value]
+            .filter(v => v !== '')
+            .join(' ');
     }
 
     public intersect(
