@@ -3,6 +3,11 @@ import semver from 'semver';
 
 import { intersect } from '../src';
 
+function uniqueFilter<T>(value: T, index: number, self: readonly T[]): boolean {
+    const jsonValue = JSON.stringify(value);
+    return self.findIndex(v => jsonValue === JSON.stringify(v)) === index;
+}
+
 const validateOutputMacro: Macro<[string[], string | null]> = (
     t,
     input,
@@ -109,13 +114,57 @@ test(validateOutputRangeMacro, ['*'], '*');
 test(validateOutputRangeMacro, [''], '*');
 
 // see https://github.com/sounisi5011/semver-range-intersect/issues/11
-test(validateOutputRangeMacro, ['* >=2'], '>=2');
-test(validateOutputRangeMacro, ['* *'], '*');
-test(validateOutputRangeMacro, ['* || >=2'], '>=2');
-test(validateOutputRangeMacro, ['* || *'], '*');
-test(validateOutputRangeMacro, ['*', '^1.0.2'], '^1.0.2');
-test(validateOutputRangeMacro, ['^1.0.2', '*'], '^1.0.2');
-test(validateOutputRangeMacro, ['*', '*'], '*');
+['1.1.1', '>=1.1.2', '^1.1.3', '*'].forEach(versionRange =>
+    [`* ${versionRange}`, `${versionRange} *`]
+        .filter(uniqueFilter)
+        .forEach(input =>
+            test(validateOutputRangeMacro, [input], versionRange),
+        ),
+);
+['1.2.1', '>=1.2.2', '^1.2.3', '*'].forEach(versionRange =>
+    [`* || ${versionRange}`, `${versionRange} || *`]
+        .filter(uniqueFilter)
+        .forEach(input => test(validateOutputRangeMacro, [input], '*')),
+);
+['1.3.1', '>=1.3.2', '^1.3.3', '*'].forEach(versionRange =>
+    [['*', versionRange], [versionRange, '*']]
+        .filter(uniqueFilter)
+        .forEach(input => test(validateOutputRangeMacro, input, versionRange)),
+);
+((versionRange1, versionRange2) => {
+    [
+        [`* ${versionRange1}`, `* ${versionRange2}`],
+        [`* ${versionRange1}`, `${versionRange2} *`],
+        [`${versionRange1} *`, `* ${versionRange2}`],
+        [`${versionRange1} *`, `${versionRange2} *`],
+    ]
+        .reduce(
+            (list, value) => {
+                return [...list, value, [...value].reverse()];
+            },
+            [] as string[][],
+        )
+        .filter(uniqueFilter)
+        .forEach(input => test(validateOutputRangeMacro, input, versionRange2));
+})('^1.4.1', '^1.4.8');
+test(validateOutputRangeMacro, ['* *', '* *'], '*');
+((versionRange1, versionRange2) => {
+    [
+        [`* || ${versionRange1}`, `* || ${versionRange2}`],
+        [`* || ${versionRange1}`, `${versionRange2} || *`],
+        [`${versionRange1} || *`, `* || ${versionRange2}`],
+        [`${versionRange1} || *`, `${versionRange2} || *`],
+    ]
+        .reduce(
+            (list, value) => {
+                return [...list, value, [...value].reverse()];
+            },
+            [] as string[][],
+        )
+        .filter(uniqueFilter)
+        .forEach(input => test(validateOutputRangeMacro, input, '*'));
+})('^1.5.1', '^1.5.8');
+test(validateOutputRangeMacro, ['* || *', '* || *'], '*');
 test(
     validateOutputRangeMacro,
     ['^1.9.0-alpha', '*', '^1.9.0-beta'],
