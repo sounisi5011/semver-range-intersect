@@ -3,6 +3,19 @@ import semver from 'semver';
 
 import { intersect } from '../src';
 
+const validateOutputMacro: Macro<[string[], string | null]> = (
+    t,
+    input,
+    expected,
+): void => {
+    t.is(intersect(...input), expected);
+};
+validateOutputMacro.title = (providedTitle = '', input, expected): string =>
+    (providedTitle ? `${providedTitle} ` : '') +
+    `intersect(${input
+        .map(v => JSON.stringify(v))
+        .join(', ')}) === ${JSON.stringify(expected)}`;
+
 const validateOutputRangeMacro: Macro<[string[], string | null]> = (
     t,
     input,
@@ -34,6 +47,12 @@ test('intersect() returns string type value', t => {
 test('intersect() returns null if the argument version is invalid', t => {
     t.is(intersect('a.b.c'), null);
 });
+
+test(validateOutputMacro, ['1.2.3'], '1.2.3');
+test(validateOutputMacro, ['>11.2.3'], '>11.2.3');
+test(validateOutputMacro, ['>=12.3.4'], '>=12.3.4');
+test(validateOutputMacro, ['<=13.4.5'], '<=13.4.5');
+test(validateOutputMacro, ['<14.5.6'], '<14.5.6');
 
 /*
  * @see https://github.com/snyamathi/semver-intersect/blob/491aebfe04cf1c7a6db89a425cd56c9af2c44902/tests/unit/semver-intersect.js#L137-L207
