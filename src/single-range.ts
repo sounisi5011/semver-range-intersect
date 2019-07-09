@@ -1,6 +1,7 @@
 import semver from 'semver';
 
 import {
+    filterUniqueComparator,
     getLowerBoundComparator,
     getUpperBoundComparator,
     isEqualsComparator,
@@ -179,7 +180,9 @@ export class SingleRange implements SingleRangeInterface {
 export function createSingleRange(
     comparatorList: readonly semver.Comparator[],
 ): SingleVer | SingleRange | null {
-    const equalsComparatorList = comparatorList.filter(isEqualsComparator);
+    const equalsComparatorList = comparatorList
+        .filter(isEqualsComparator)
+        .filter(filterUniqueComparator);
     switch (equalsComparatorList.length) {
         case 0:
             return new SingleRange(

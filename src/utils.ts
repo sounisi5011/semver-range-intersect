@@ -21,11 +21,26 @@ export function isValidOperator(
     return operatorList.includes(comparator.operator);
 }
 
+export function equalComparator(
+    comparatorA: semver.Comparator,
+    comparatorB: semver.Comparator,
+): boolean {
+    return comparatorA.value === comparatorB.value;
+}
+
 export function isEqualsComparator(comparator: semver.Comparator): boolean {
     return (
         comparator.semver instanceof semver.SemVer &&
         isValidOperator(comparator, ['', '='])
     );
+}
+
+export function filterUniqueComparator(
+    comparator: semver.Comparator,
+    index: number,
+    self: readonly semver.Comparator[],
+): boolean {
+    return self.findIndex(comp => equalComparator(comparator, comp)) === index;
 }
 
 export function filterOperator(
