@@ -14,10 +14,24 @@ export function isNoIncludeNull<T>(
     return value.every(isNotNull);
 }
 
+export function isValidOperator(
+    comparator: semver.Comparator,
+    operatorList: readonly semver.Comparator['operator'][],
+): boolean {
+    return operatorList.includes(comparator.operator);
+}
+
+export function isEqualsComparator(comparator: semver.Comparator): boolean {
+    return (
+        comparator.semver instanceof semver.SemVer &&
+        isValidOperator(comparator, ['', '='])
+    );
+}
+
 export function filterOperator(
     operatorList: readonly semver.Comparator['operator'][],
 ): (comparator: semver.Comparator) => boolean {
-    return comparator => operatorList.includes(comparator.operator);
+    return comparator => isValidOperator(comparator, operatorList);
 }
 
 export function isIntersectRanges(
