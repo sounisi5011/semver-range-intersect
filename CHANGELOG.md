@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#13] - `intersect()` returns `'*'` instead of empty string
+* [#14] - `intersect()` returns trimmed version range value
 
 ### Updated Dependencies
 
@@ -15,6 +16,7 @@
 
 [#10]: https://github.com/sounisi5011/semver-range-intersect/pull/10
 [#13]: https://github.com/sounisi5011/semver-range-intersect/pull/13
+[#14]: https://github.com/sounisi5011/semver-range-intersect/pull/14
 [0.2.0]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.1.0...HEAD
 
 ## [0.1.0] (2019-07-08 UTC / 2019-07-09 JST)
