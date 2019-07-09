@@ -23,5 +23,5 @@ export function intersect(...ranges: string[]): string | null {
             new MultiRange(null),
         );
 
-    return intersectRange.valid ? String(intersectRange) : null;
+    return intersectRange.valid ? String(intersectRange) || '*' : null;
 }
