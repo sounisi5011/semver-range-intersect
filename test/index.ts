@@ -1,11 +1,16 @@
 import test, { Macro } from 'ava';
+import equal from 'fast-deep-equal';
+import { permutations } from 'iter-tools';
 import semver from 'semver';
 
 import { intersect } from '../src';
 
 function uniqueFilter<T>(value: T, index: number, self: readonly T[]): boolean {
-    const jsonValue = JSON.stringify(value);
-    return self.findIndex(v => jsonValue === JSON.stringify(v)) === index;
+    return self.findIndex(v => equal(value, v)) === index;
+}
+
+function args2str(args: readonly unknown[]): string {
+    return args.map(v => JSON.stringify(v)).join(', ');
 }
 
 const validateOutputMacro: Macro<[string[], string | null]> = (
@@ -13,28 +18,41 @@ const validateOutputMacro: Macro<[string[], string | null]> = (
     input,
     expected,
 ): void => {
-    t.is(intersect(...input), expected);
+    [...permutations(input)].forEach(input => {
+        t.is(
+            intersect(...input),
+            expected,
+            `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`,
+        );
+    });
 };
 validateOutputMacro.title = (providedTitle = '', input, expected): string =>
     (providedTitle ? `${providedTitle} ` : '') +
-    `intersect(${input
-        .map(v => JSON.stringify(v))
-        .join(', ')}) === ${JSON.stringify(expected)}`;
+    `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`;
 
 const validateOutputRangeMacro: Macro<[string[], string | null]> = (
     t,
     input,
     expected,
 ): void => {
-    const intersectRange = intersect(...input);
-    if (expected && intersectRange) {
-        t.is(
-            semver.validRange(intersectRange) || intersectRange,
-            semver.validRange(expected) || expected,
-        );
-    } else {
-        t.is(intersectRange, expected);
-    }
+    [...permutations(input)].forEach(input => {
+        const intersectRange = intersect(...input);
+        if (expected && intersectRange) {
+            t.is(
+                semver.validRange(intersectRange) || intersectRange,
+                semver.validRange(expected) || expected,
+                `intersect(${args2str(input)}) equals ${JSON.stringify(
+                    expected,
+                )}`,
+            );
+        } else {
+            t.is(
+                intersectRange,
+                expected,
+                `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`,
+            );
+        }
+    });
 };
 validateOutputRangeMacro.title = (
     providedTitle = '',
@@ -42,9 +60,7 @@ validateOutputRangeMacro.title = (
     expected,
 ): string =>
     (providedTitle ? `${providedTitle} ` : '') +
-    `intersect(${input
-        .map(v => JSON.stringify(v))
-        .join(', ')}) === ${JSON.stringify(expected)}`;
+    `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`;
 
 test('intersect() returns string type value', t => {
     t.is(typeof intersect('1.0.0'), 'string');
