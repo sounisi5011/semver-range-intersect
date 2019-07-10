@@ -113,6 +113,19 @@ test(validateOutputRangeMacro, ['X'], '*');
 test(validateOutputRangeMacro, ['*'], '*');
 test(validateOutputRangeMacro, [''], '*');
 
+[
+    // see https://github.com/sounisi5011/semver-range-intersect/issues/16
+    ['1.2.3', '1.2.3', '1.2.3'],
+    // see https://github.com/sounisi5011/semver-range-intersect/issues/18
+    ['1.2.3', '>=1.2.3', '<=1.2.3'],
+    ['1.2.3-pre', '>=1.2.3-pre', '<=1.2.3-pre'],
+].forEach(([expected, ...input]) => {
+    [input, [...input].reverse()].filter(uniqueFilter).forEach(input => {
+        test(validateOutputRangeMacro, input, expected);
+        test(validateOutputRangeMacro, [input.join(' ')], expected);
+    });
+});
+
 // see https://github.com/sounisi5011/semver-range-intersect/issues/11
 ['1.1.1', '>=1.1.2', '^1.1.3', '*'].forEach(versionRange =>
     [`* ${versionRange}`, `${versionRange} *`]
