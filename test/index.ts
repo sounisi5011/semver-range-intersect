@@ -1,40 +1,101 @@
 import test, { Macro } from 'ava';
+import equal from 'fast-deep-equal';
+import { map, permutations, product } from 'iter-tools';
 import semver from 'semver';
 
 import { intersect } from '../src';
 
 function uniqueFilter<T>(value: T, index: number, self: readonly T[]): boolean {
-    const jsonValue = JSON.stringify(value);
-    return self.findIndex(v => jsonValue === JSON.stringify(v)) === index;
+    return self.findIndex(v => equal(value, v)) === index;
 }
+
+function args2str(args: readonly unknown[]): string {
+    return args.map(v => JSON.stringify(v)).join(', ');
+}
+
+/*
+ * getRangeCombinations([['*'], ['^1.4.1', '^1.4.8']]) === [
+ *   [
+ *     [ '*', '^1.4.1' ],
+ *     [ '*', '^1.4.8' ],
+ *   ],
+ *   [
+ *     [ '*', '^1.4.1' ],
+ *     [ '^1.4.8', '*' ],
+ *   ],
+ *   [
+ *     [ '^1.4.1', '*' ],
+ *     [ '*', '^1.4.8' ],
+ *   ],
+ *   [
+ *     [ '^1.4.1', '*' ],
+ *     [ '^1.4.8', '*' ],
+ *   ],
+ * ]
+ */
+function getRangeCombinations(valueList: string[][]): string[][][] {
+    return [
+        ...product(
+            ...map(
+                vl => map(v => [v], permutations(vl)),
+                product(...valueList),
+            ),
+        ),
+    ];
+}
+
+const testNameList: string[] = [];
 
 const validateOutputMacro: Macro<[string[], string | null]> = (
     t,
     input,
     expected,
 ): void => {
-    t.is(intersect(...input), expected);
+    [...permutations(input)].filter(uniqueFilter).forEach(input => {
+        const testName =
+            `intersect(${args2str(input)})` +
+            ' === ' +
+            JSON.stringify(expected);
+
+        if (testNameList.includes(testName)) {
+            throw new Error(`Duplicate test: ${testName}`);
+        }
+
+        t.is(intersect(...input), expected, testName);
+        testNameList.push(testName);
+    });
 };
 validateOutputMacro.title = (providedTitle = '', input, expected): string =>
     (providedTitle ? `${providedTitle} ` : '') +
-    `intersect(${input
-        .map(v => JSON.stringify(v))
-        .join(', ')}) === ${JSON.stringify(expected)}`;
+    `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`;
 
-const validateOutputRangeMacro: Macro<[string[], string | null]> = (
+const validateOutputRangeMacro: Macro<[string[], string]> = (
     t,
     input,
     expected,
 ): void => {
-    const intersectRange = intersect(...input);
-    if (expected && intersectRange) {
-        t.is(
-            semver.validRange(intersectRange) || intersectRange,
-            semver.validRange(expected) || expected,
-        );
-    } else {
-        t.is(intersectRange, expected);
-    }
+    [...permutations(input)].filter(uniqueFilter).forEach(input => {
+        const intersectRange = intersect(...input);
+        const normalizedInput =
+            intersectRange !== null ? semver.validRange(intersectRange) : null;
+        const normalizedExpected = semver.validRange(expected);
+
+        const testName =
+            (normalizedInput !== intersectRange
+                ? `semver.validRange(intersect(${args2str(input)}))`
+                : `intersect(${args2str(input)})`) +
+            ' === ' +
+            (normalizedExpected !== expected
+                ? `semver.validRange(${JSON.stringify(expected)})`
+                : JSON.stringify(expected));
+
+        if (testNameList.includes(testName)) {
+            throw new Error(`Duplicate test: ${testName}`);
+        }
+
+        t.is(normalizedInput, normalizedExpected, testName);
+        testNameList.push(testName);
+    });
 };
 validateOutputRangeMacro.title = (
     providedTitle = '',
@@ -42,9 +103,7 @@ validateOutputRangeMacro.title = (
     expected,
 ): string =>
     (providedTitle ? `${providedTitle} ` : '') +
-    `intersect(${input
-        .map(v => JSON.stringify(v))
-        .join(', ')}) === ${JSON.stringify(expected)}`;
+    `intersect(${args2str(input)}) equals ${JSON.stringify(expected)}`;
 
 test('intersect() returns string type value', t => {
     t.is(typeof intersect('1.0.0'), 'string');
@@ -83,35 +142,35 @@ test(
 );
 test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.1-alpha'], '^1.9.1'); // Note: Is the correct return value "^1.9.1"? Or null? I do not understand well.
 test(validateOutputRangeMacro, ['^1.9.0-alpha', '^1.9.0-beta'], '^1.9.0-beta');
-test(validateOutputRangeMacro, ['^1.9.0-beta', '^1.9.0-alpha'], '^1.9.0-beta');
+// test(validateOutputRangeMacro, ['^1.9.0-beta', '^1.9.0-alpha'], '^1.9.0-beta');
 test(
     validateOutputRangeMacro,
     ['^1.9.0-alpha.1', '^1.9.0-beta.2'],
     '^1.9.0-beta.2',
 );
-test(validateOutputRangeMacro, ['1.9.0-alpha.1', '^1.9.0-alpha.2'], null);
-test(validateOutputRangeMacro, ['1.9.0-alpha.1', '1.9.0-alpha.0'], null);
-test(validateOutputRangeMacro, ['1.9.0-rc3', '^1.9.0-rc4'], null);
+test(validateOutputMacro, ['1.9.0-alpha.1', '^1.9.0-alpha.2'], null);
+test(validateOutputMacro, ['1.9.0-alpha.1', '1.9.0-alpha.0'], null);
+test(validateOutputMacro, ['1.9.0-rc3', '^1.9.0-rc4'], null);
 test(validateOutputRangeMacro, ['1.5.16', '^1.0.0'], '1.5.16');
 test(
     validateOutputRangeMacro,
     ['^4.0.0', '~4.3.89', '~4.3.24', '~4.3.63'],
     '~4.3.89',
 );
-test(validateOutputRangeMacro, ['^4.0.0', '~4.3.0', '^4.4.0'], null);
+test(validateOutputMacro, ['^4.0.0', '~4.3.0', '^4.4.0'], null);
 test(validateOutputRangeMacro, ['1.0.0 - 1.5.3'], '1.0.0 - 1.5.3');
-test(validateOutputRangeMacro, ['^5.0.0', '^4.0.1'], null);
-test(validateOutputRangeMacro, ['^5.0.0', '^3.0.0'], null);
-test(validateOutputRangeMacro, ['~5.1.0', '~5.2.0'], null);
-test(validateOutputRangeMacro, ['^0.5.0', '^0.4.0'], null);
+test(validateOutputMacro, ['^5.0.0', '^4.0.1'], null);
+test(validateOutputMacro, ['^5.0.0', '^3.0.0'], null);
+test(validateOutputMacro, ['~5.1.0', '~5.2.0'], null);
+test(validateOutputMacro, ['^0.5.0', '^0.4.0'], null);
 
 // see https://github.com/sounisi5011/semver-range-intersect/issues/12
-test(validateOutputRangeMacro, ['x.x.x'], '*');
-test(validateOutputRangeMacro, ['*.*.*'], '*');
-test(validateOutputRangeMacro, ['x'], '*');
-test(validateOutputRangeMacro, ['X'], '*');
-test(validateOutputRangeMacro, ['*'], '*');
-test(validateOutputRangeMacro, [''], '*');
+test(validateOutputMacro, ['x.x.x'], '*');
+test(validateOutputMacro, ['*.*.*'], '*');
+test(validateOutputMacro, ['x'], '*');
+test(validateOutputMacro, ['X'], '*');
+test(validateOutputMacro, ['*'], '*');
+test(validateOutputMacro, [''], '*');
 
 [
     // see https://github.com/sounisi5011/semver-range-intersect/issues/16
@@ -120,63 +179,45 @@ test(validateOutputRangeMacro, [''], '*');
     ['1.2.3', '>=1.2.3', '<=1.2.3'],
     ['1.2.3-pre', '>=1.2.3-pre', '<=1.2.3-pre'],
 ].forEach(([expected, ...input]) => {
-    [input, [...input].reverse()].filter(uniqueFilter).forEach(input => {
-        test(validateOutputRangeMacro, input, expected);
+    test(validateOutputRangeMacro, input, expected);
+    [...permutations(input)].filter(uniqueFilter).forEach(input => {
         test(validateOutputRangeMacro, [input.join(' ')], expected);
     });
 });
 
 // see https://github.com/sounisi5011/semver-range-intersect/issues/11
 ['1.1.1', '>=1.1.2', '^1.1.3', '*'].forEach(versionRange =>
-    [`* ${versionRange}`, `${versionRange} *`]
+    [...permutations(['*', versionRange])]
+        .map(versionList => versionList.join(' '))
         .filter(uniqueFilter)
         .forEach(input =>
             test(validateOutputRangeMacro, [input], versionRange),
         ),
 );
 ['1.2.1', '>=1.2.2', '^1.2.3', '*'].forEach(versionRange =>
-    [`* || ${versionRange}`, `${versionRange} || *`]
+    [...permutations(['*', versionRange])]
+        .map(versionList => versionList.join(' || '))
         .filter(uniqueFilter)
         .forEach(input => test(validateOutputRangeMacro, [input], '*')),
 );
 ['1.3.1', '>=1.3.2', '^1.3.3', '*'].forEach(versionRange =>
-    [['*', versionRange], [versionRange, '*']]
-        .filter(uniqueFilter)
-        .forEach(input => test(validateOutputRangeMacro, input, versionRange)),
+    test(validateOutputRangeMacro, ['*', versionRange], versionRange),
 );
-((versionRange1, versionRange2) => {
-    [
-        [`* ${versionRange1}`, `* ${versionRange2}`],
-        [`* ${versionRange1}`, `${versionRange2} *`],
-        [`${versionRange1} *`, `* ${versionRange2}`],
-        [`${versionRange1} *`, `${versionRange2} *`],
-    ]
-        .reduce(
-            (list, value) => {
-                return [...list, value, [...value].reverse()];
-            },
-            [] as string[][],
-        )
-        .filter(uniqueFilter)
-        .forEach(input => test(validateOutputRangeMacro, input, versionRange2));
-})('^1.4.1', '^1.4.8');
+getRangeCombinations([['*'], ['^1.4.1', '^1.4.8']]).forEach(versionListList => {
+    test(
+        validateOutputRangeMacro,
+        versionListList.map(versionList => versionList.join(' ')),
+        '^1.4.8',
+    );
+});
 test(validateOutputRangeMacro, ['* *', '* *'], '*');
-((versionRange1, versionRange2) => {
-    [
-        [`* || ${versionRange1}`, `* || ${versionRange2}`],
-        [`* || ${versionRange1}`, `${versionRange2} || *`],
-        [`${versionRange1} || *`, `* || ${versionRange2}`],
-        [`${versionRange1} || *`, `${versionRange2} || *`],
-    ]
-        .reduce(
-            (list, value) => {
-                return [...list, value, [...value].reverse()];
-            },
-            [] as string[][],
-        )
-        .filter(uniqueFilter)
-        .forEach(input => test(validateOutputRangeMacro, input, '*'));
-})('^1.5.1', '^1.5.8');
+getRangeCombinations([['*'], ['^1.5.1', '^1.5.8']]).forEach(versionListList => {
+    test(
+        validateOutputRangeMacro,
+        versionListList.map(versionList => versionList.join(' || ')),
+        '*',
+    );
+});
 test(validateOutputRangeMacro, ['* || *', '* || *'], '*');
 test(
     validateOutputRangeMacro,
@@ -234,15 +275,15 @@ test(
     ['>1.2.3', '<=1.2.3'],
     ['>=1.2.4', '<=1.2.2'],
 ].forEach(input => {
-    [input, [...input].reverse()].forEach(input => {
-        test(validateOutputRangeMacro, input, null);
-        test(validateOutputRangeMacro, [input.join(' ')], null);
+    test(validateOutputMacro, input, null);
+    [...permutations(input)].forEach(input => {
+        test(validateOutputMacro, [input.join(' ')], null);
     });
 });
 
 test(validateOutputRangeMacro, ['1.1 - 1.3', '1.2 - 1.4'], '1.2 - 1.3');
 test(
-    validateOutputRangeMacro,
+    validateOutputMacro,
     ['1.0.1 - 1.0.11', '1.0.5 - 1.0.15', '1.0.16 - 1.1.0'],
     null,
 );
