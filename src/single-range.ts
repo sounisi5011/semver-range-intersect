@@ -56,6 +56,11 @@ export class SingleRange implements SingleRangeInterface {
     ) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
+        if (!lowerBound.intersects(upperBound)) {
+            throw new Error(
+                `Invalid range; version range does not intersect: ${this}`,
+            );
+        }
     }
 
     public toString(): string {
@@ -196,7 +201,11 @@ export function createSingleRange(
             if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {
                 return new SingleVer(stripComparatorOperator(lowerBound));
             }
-            return new SingleRange(lowerBound, upperBound);
+            try {
+                return new SingleRange(lowerBound, upperBound);
+            } catch (err) {
+                return null;
+            }
         }
         case 1:
             return new SingleVer(equalsComparatorList[0]);

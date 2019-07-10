@@ -8,6 +8,7 @@
 * [#14] - `intersect()` returns trimmed version range value
 * [#15] - `intersect()` derive an appropriate intersection from the range that any version satisfies
 * [#19] - `intersect()` normalize overlapping version ranges into one version range
+* [#21] - `intersect()` returns null for a single non-intersecting version range
 
 ### Updated Dependencies
 
@@ -21,6 +22,7 @@
 [#14]: https://github.com/sounisi5011/semver-range-intersect/pull/14
 [#15]: https://github.com/sounisi5011/semver-range-intersect/pull/15
 [#19]: https://github.com/sounisi5011/semver-range-intersect/pull/19
+[#21]: https://github.com/sounisi5011/semver-range-intersect/pull/21
 [0.2.0]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.1.0...HEAD
 
 ## [0.1.0] (2019-07-08 UTC / 2019-07-09 JST)
