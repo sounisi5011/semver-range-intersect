@@ -227,6 +227,19 @@ test(
         });
 });
 
+// see https://github.com/sounisi5011/semver-range-intersect/issues/17
+[
+    ['>1.2.3', '<1.2.3'],
+    ['>=1.2.3', '<1.2.3'],
+    ['>1.2.3', '<=1.2.3'],
+    ['>=1.2.4', '<=1.2.2'],
+].forEach(input => {
+    [input, [...input].reverse()].forEach(input => {
+        test(validateOutputRangeMacro, input, null);
+        test(validateOutputRangeMacro, [input.join(' ')], null);
+    });
+});
+
 test(validateOutputRangeMacro, ['1.1 - 1.3', '1.2 - 1.4'], '1.2 - 1.3');
 test(
     validateOutputRangeMacro,
