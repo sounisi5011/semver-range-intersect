@@ -19,6 +19,17 @@
 * `typescript`
     * [#10] - `3.5.2` -> `3.5.3`
 
+### Added Dependencies
+
+#### devDependencies
+
+* [#22] - `fast-deep-equal@2.0.1`
+* [#22] - `iter-tools@6.2.5`
+
+### Tests
+
+* [#22] - Test enhancements
+
 [#10]: https://github.com/sounisi5011/semver-range-intersect/pull/10
 [#13]: https://github.com/sounisi5011/semver-range-intersect/pull/13
 [#14]: https://github.com/sounisi5011/semver-range-intersect/pull/14
@@ -26,6 +37,7 @@
 [#19]: https://github.com/sounisi5011/semver-range-intersect/pull/19
 [#20]: https://github.com/sounisi5011/semver-range-intersect/pull/20
 [#21]: https://github.com/sounisi5011/semver-range-intersect/pull/21
+[#22]: https://github.com/sounisi5011/semver-range-intersect/pull/22
 [0.2.0]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.1.0...HEAD
 
 ## [0.1.0] (2019-07-08 UTC / 2019-07-09 JST)
