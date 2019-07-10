@@ -30,20 +30,46 @@ validateOutputMacro.title = (providedTitle = '', input, expected): string =>
     (providedTitle ? `${providedTitle} ` : '') +
     `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`;
 
-const validateOutputRangeMacro: Macro<[string[], string | null]> = (
+const validateOutputRangeMacro: Macro<[string[], string]> = (
     t,
     input,
     expected,
 ): void => {
     [...permutations(input)].forEach(input => {
         const intersectRange = intersect(...input);
-        if (expected && intersectRange) {
+        const inputRange =
+            intersectRange !== null ? semver.validRange(intersectRange) : null;
+        const expectedRange = semver.validRange(expected);
+
+        if (inputRange !== intersectRange && expectedRange !== expected) {
             t.is(
-                semver.validRange(intersectRange) || intersectRange,
-                semver.validRange(expected) || expected,
-                `intersect(${args2str(input)}) equals ${JSON.stringify(
-                    expected,
-                )}`,
+                inputRange,
+                expectedRange,
+                `semver.validRange(intersect(${args2str(
+                    input,
+                )})) === semver.validRange(${JSON.stringify(expected)})`,
+            );
+        } else if (
+            inputRange === intersectRange &&
+            expectedRange !== expected
+        ) {
+            t.is(
+                intersectRange,
+                expectedRange,
+                `intersect(${args2str(
+                    input,
+                )}) === semver.validRange(${JSON.stringify(expected)})`,
+            );
+        } else if (
+            inputRange !== intersectRange &&
+            expectedRange === expected
+        ) {
+            t.is(
+                inputRange,
+                expected,
+                `semver.validRange(intersect(${args2str(
+                    input,
+                )})) === ${JSON.stringify(expected)}`,
             );
         } else {
             t.is(
@@ -60,7 +86,7 @@ validateOutputRangeMacro.title = (
     expected,
 ): string =>
     (providedTitle ? `${providedTitle} ` : '') +
-    `intersect(${args2str(input)}) === ${JSON.stringify(expected)}`;
+    `intersect(${args2str(input)}) equals ${JSON.stringify(expected)}`;
 
 test('intersect() returns string type value', t => {
     t.is(typeof intersect('1.0.0'), 'string');
@@ -105,29 +131,29 @@ test(
     ['^1.9.0-alpha.1', '^1.9.0-beta.2'],
     '^1.9.0-beta.2',
 );
-test(validateOutputRangeMacro, ['1.9.0-alpha.1', '^1.9.0-alpha.2'], null);
-test(validateOutputRangeMacro, ['1.9.0-alpha.1', '1.9.0-alpha.0'], null);
-test(validateOutputRangeMacro, ['1.9.0-rc3', '^1.9.0-rc4'], null);
+test(validateOutputMacro, ['1.9.0-alpha.1', '^1.9.0-alpha.2'], null);
+test(validateOutputMacro, ['1.9.0-alpha.1', '1.9.0-alpha.0'], null);
+test(validateOutputMacro, ['1.9.0-rc3', '^1.9.0-rc4'], null);
 test(validateOutputRangeMacro, ['1.5.16', '^1.0.0'], '1.5.16');
 test(
     validateOutputRangeMacro,
     ['^4.0.0', '~4.3.89', '~4.3.24', '~4.3.63'],
     '~4.3.89',
 );
-test(validateOutputRangeMacro, ['^4.0.0', '~4.3.0', '^4.4.0'], null);
+test(validateOutputMacro, ['^4.0.0', '~4.3.0', '^4.4.0'], null);
 test(validateOutputRangeMacro, ['1.0.0 - 1.5.3'], '1.0.0 - 1.5.3');
-test(validateOutputRangeMacro, ['^5.0.0', '^4.0.1'], null);
-test(validateOutputRangeMacro, ['^5.0.0', '^3.0.0'], null);
-test(validateOutputRangeMacro, ['~5.1.0', '~5.2.0'], null);
-test(validateOutputRangeMacro, ['^0.5.0', '^0.4.0'], null);
+test(validateOutputMacro, ['^5.0.0', '^4.0.1'], null);
+test(validateOutputMacro, ['^5.0.0', '^3.0.0'], null);
+test(validateOutputMacro, ['~5.1.0', '~5.2.0'], null);
+test(validateOutputMacro, ['^0.5.0', '^0.4.0'], null);
 
 // see https://github.com/sounisi5011/semver-range-intersect/issues/12
-test(validateOutputRangeMacro, ['x.x.x'], '*');
-test(validateOutputRangeMacro, ['*.*.*'], '*');
-test(validateOutputRangeMacro, ['x'], '*');
-test(validateOutputRangeMacro, ['X'], '*');
-test(validateOutputRangeMacro, ['*'], '*');
-test(validateOutputRangeMacro, [''], '*');
+test(validateOutputMacro, ['x.x.x'], '*');
+test(validateOutputMacro, ['*.*.*'], '*');
+test(validateOutputMacro, ['x'], '*');
+test(validateOutputMacro, ['X'], '*');
+test(validateOutputMacro, ['*'], '*');
+test(validateOutputMacro, [''], '*');
 
 [
     // see https://github.com/sounisi5011/semver-range-intersect/issues/16
@@ -251,14 +277,14 @@ test(
     ['>=1.2.4', '<=1.2.2'],
 ].forEach(input => {
     [input, [...input].reverse()].forEach(input => {
-        test(validateOutputRangeMacro, input, null);
-        test(validateOutputRangeMacro, [input.join(' ')], null);
+        test(validateOutputMacro, input, null);
+        test(validateOutputMacro, [input.join(' ')], null);
     });
 });
 
 test(validateOutputRangeMacro, ['1.1 - 1.3', '1.2 - 1.4'], '1.2 - 1.3');
 test(
-    validateOutputRangeMacro,
+    validateOutputMacro,
     ['1.0.1 - 1.0.11', '1.0.5 - 1.0.15', '1.0.16 - 1.1.0'],
     null,
 );
