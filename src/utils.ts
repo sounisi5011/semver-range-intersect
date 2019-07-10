@@ -28,6 +28,34 @@ export function equalComparator(
     return comparatorA.value === comparatorB.value;
 }
 
+export function comparator2versionStr(comparator: semver.Comparator): string {
+    const compSemver: semver.SemVer | {} = comparator.semver;
+    return compSemver instanceof semver.SemVer ? compSemver.version : '';
+}
+
+// 1.2.3   / 1.2.3   ... true
+// >=1.2.3 / <=1.2.3 ... true
+// >=1.2.3 / 1.2.3   ... true
+// >1.2.3  / <1.2.3  ... false
+// >=1.2.3 / <1.2.3  ... false
+// *       / *       ... false
+// 1.2.3   / *       ... false
+// >=1.2.3 / *       ... false
+export function isSameVersionEqualsLikeComparator(
+    comparatorA: semver.Comparator,
+    comparatorB: semver.Comparator,
+): boolean {
+    const compVersionA = comparator2versionStr(comparatorA);
+    const compVersionB = comparator2versionStr(comparatorB);
+    return (
+        compVersionA !== '' &&
+        compVersionB !== '' &&
+        compVersionA === compVersionB &&
+        /=|^$/.test(comparatorA.operator) &&
+        /=|^$/.test(comparatorB.operator)
+    );
+}
+
 export function isEqualsComparator(comparator: semver.Comparator): boolean {
     return (
         comparator.semver instanceof semver.SemVer &&
@@ -67,6 +95,16 @@ export function stripSemVerPrerelease(semverVersion: semver.SemVer): string {
     );
     newSemverVersion.prerelease = [];
     return newSemverVersion.format();
+}
+
+export function stripComparatorOperator(
+    comparator: semver.Comparator,
+): semver.Comparator {
+    if (!comparator.operator) {
+        return comparator;
+    }
+    const versionStr = comparator2versionStr(comparator);
+    return new semver.Comparator(versionStr, comparator.options);
 }
 
 export function getLowerBoundComparator(

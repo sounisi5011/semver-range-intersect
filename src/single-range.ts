@@ -5,6 +5,8 @@ import {
     getLowerBoundComparator,
     getUpperBoundComparator,
     isEqualsComparator,
+    isSameVersionEqualsLikeComparator,
+    stripComparatorOperator,
 } from './utils';
 
 export interface SingleRangeInterface {
@@ -69,16 +71,20 @@ export class SingleRange implements SingleRangeInterface {
             if (singleRange instanceof SingleVer) {
                 return singleRange;
             } else {
-                return new SingleRange(
-                    getLowerBoundComparator([
-                        this.lowerBound,
-                        singleRange.lowerBound,
-                    ]),
-                    getUpperBoundComparator([
-                        this.upperBound,
-                        singleRange.upperBound,
-                    ]),
-                );
+                const lowerBound = getLowerBoundComparator([
+                    this.lowerBound,
+                    singleRange.lowerBound,
+                ]);
+                const upperBound = getUpperBoundComparator([
+                    this.upperBound,
+                    singleRange.upperBound,
+                ]);
+
+                if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {
+                    return new SingleVer(stripComparatorOperator(lowerBound));
+                }
+
+                return new SingleRange(lowerBound, upperBound);
             }
         } else {
             // Invalid range
@@ -184,11 +190,14 @@ export function createSingleRange(
         .filter(isEqualsComparator)
         .filter(filterUniqueComparator);
     switch (equalsComparatorList.length) {
-        case 0:
-            return new SingleRange(
-                getLowerBoundComparator(comparatorList),
-                getUpperBoundComparator(comparatorList),
-            );
+        case 0: {
+            const lowerBound = getLowerBoundComparator(comparatorList);
+            const upperBound = getUpperBoundComparator(comparatorList);
+            if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {
+                return new SingleVer(stripComparatorOperator(lowerBound));
+            }
+            return new SingleRange(lowerBound, upperBound);
+        }
         case 1:
             return new SingleVer(equalsComparatorList[0]);
         default:
