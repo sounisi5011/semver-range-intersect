@@ -1,5 +1,17 @@
 # Change Log
 
+## [0.x]
+
+### Updated Dependencies
+
+#### devDependencies
+
+* `lint-staged`
+    * [#24] - `9.1.0` -> `9.2.0`
+
+[0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.2.0...HEAD
+[#24]: https://github.com/sounisi5011/semver-range-intersect/pull/24
+
 ## [0.2.0] (2019-07-10)
 
 ### Bug Fixes
