@@ -6,7 +6,7 @@ import {
     SingleRange,
     SingleVer,
 } from './single-range';
-import { isNoIncludeNull, isNotNull, uniqueArray } from './utils';
+import { isNotNull, uniqueArray } from './utils';
 
 export function normalizeSingleRangeList(
     singleRangeList: readonly (SingleVer | SingleRange | null)[],
@@ -92,7 +92,7 @@ export class MultiRange {
                     }
                 }),
             );
-            this.set = isNoIncludeNull(singleRangeList) ? singleRangeList : [];
+            this.set = singleRangeList.filter(isNotNull);
         } else {
             this.set = [];
         }
