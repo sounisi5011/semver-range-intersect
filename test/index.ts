@@ -283,25 +283,17 @@ test(
 
 // see https://github.com/sounisi5011/semver-range-intersect/issues/25
 [...permutations(['>2 <2', '*'])].forEach(input => {
-    test.only(validateOutputRangeMacro, [input.join(' || ')], '*');
+    test(validateOutputRangeMacro, [input.join(' || ')], '*');
 });
 [...permutations(['>2 <2', '>=2.3.4'])].forEach(input => {
-    test.only(
-        validateOutputRangeMacro,
-        ['>=1.2.3', input.join(' || ')],
-        '>=2.3.4',
-    );
+    test(validateOutputRangeMacro, ['>=1.2.3', input.join(' || ')], '>=2.3.4');
 });
 [...permutations(['>2 <2', '>=1.2.3'])].forEach(input => {
-    test.only(
-        validateOutputRangeMacro,
-        [input.join(' || '), '>=2.4.3'],
-        '>=2.4.3',
-    );
+    test(validateOutputRangeMacro, [input.join(' || '), '>=2.4.3'], '>=2.4.3');
 });
 getRangeCombinations([['>2 <2'], ['>=2.6.3', '>=3.8.7']]).forEach(
     versionListList => {
-        test.only(
+        test(
             validateOutputRangeMacro,
             versionListList.map(versionList => versionList.join(' || ')),
             '>=3.8.7',
