@@ -14,14 +14,26 @@
 #### devDependencies
 
 * [#28] - `github:sounisi5011/check-peer-deps`
+* [#31] - `package-version-git-tag@1.0.0`
+
+### Removed Dependencies
+
+#### devDependencies
+
+* [#31] - `@types/node@12.6.2`
 
 ### Tests
 
 * [#28] - Check peerDependencies
 
+### Others
+
+* [#31] - Replace build script `script/git-add-pkg-version-tag.ts` with package-version-git-tag package.
+
 [0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.2.0...HEAD
 [#24]: https://github.com/sounisi5011/semver-range-intersect/pull/24
 [#28]: https://github.com/sounisi5011/semver-range-intersect/pull/28
+[#31]: https://github.com/sounisi5011/semver-range-intersect/pull/31
 
 ## [0.2.0] (2019-07-10)
 
