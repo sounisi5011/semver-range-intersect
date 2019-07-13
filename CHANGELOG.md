@@ -6,6 +6,10 @@
 
 #### devDependencies
 
+* `@typescript-eslint/eslint-plugin`
+    * [#33] - `1.11.0` -> `1.12.0`
+* `@typescript-eslint/parser`
+    * [#33] - `1.11.0` -> `1.12.0`
 * `lint-staged`
     * [#24] - `9.1.0` -> `9.2.0`
 
@@ -34,6 +38,7 @@
 [#24]: https://github.com/sounisi5011/semver-range-intersect/pull/24
 [#28]: https://github.com/sounisi5011/semver-range-intersect/pull/28
 [#31]: https://github.com/sounisi5011/semver-range-intersect/pull/31
+[#33]: https://github.com/sounisi5011/semver-range-intersect/pull/33
 
 ## [0.2.0] (2019-07-10)
 
