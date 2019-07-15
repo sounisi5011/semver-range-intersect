@@ -444,7 +444,7 @@ test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
     test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
 });
 [...permutations(['*', '<1.2.3-0'])].filter(uniqueFilter).forEach(input => {
-    test(validateOutputRangeMacro, [input.join(' ')], '<1.2.3');
+    test(validateOutputRangeMacro, [input.join(' ')], '<1.2.3-0');
 });
 test(validateOutputRangeMacro, ['*', '>1.2.3-0'], '>=1.2.3');
 test(validateOutputRangeMacro, ['*', '>=1.2.3-0'], '>=1.2.3');
