@@ -2,6 +2,10 @@
 
 ## [0.x]
 
+### Bug Fixes
+
+* [#35] - Fixed prerelease version range processing logic
+
 ### Updated Dependencies
 
 #### devDependencies
@@ -39,6 +43,7 @@
 [#28]: https://github.com/sounisi5011/semver-range-intersect/pull/28
 [#31]: https://github.com/sounisi5011/semver-range-intersect/pull/31
 [#33]: https://github.com/sounisi5011/semver-range-intersect/pull/33
+[#35]: https://github.com/sounisi5011/semver-range-intersect/pull/35
 
 ## [0.2.0] (2019-07-10)
 
