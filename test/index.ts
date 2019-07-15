@@ -4,6 +4,7 @@ import { map, permutations, product } from 'iter-tools';
 import semver from 'semver';
 
 import { intersect } from '../src';
+import { isNotNull, uniqueArray } from '../src/utils';
 
 function uniqueFilter<T>(value: T, index: number, self: readonly T[]): boolean {
     return self.findIndex(v => equal(value, v)) === index;
@@ -44,6 +45,84 @@ function getRangeCombinations(valueList: string[][]): string[][][] {
     ];
 }
 
+function semverDecrement(
+    v: string | semver.SemVer,
+    release: semver.ReleaseType,
+): string | null {
+    const maxVerUnit = 9999;
+    const minPrerelease = [0];
+    const maxPrerelease = ['zzzzzzzzzz'];
+    try {
+        const semVer = new semver.SemVer(String(v));
+        switch (release) {
+            case 'major':
+                if (semVer.major <= 0) {
+                    return null;
+                }
+                semVer.major--;
+                semVer.minor = semVer.patch = maxVerUnit;
+                semVer.prerelease = [];
+                break;
+            case 'premajor':
+                if (semVer.major <= 0) {
+                    return null;
+                }
+                semVer.major--;
+                semVer.minor = semVer.patch = maxVerUnit;
+                semVer.prerelease = maxPrerelease;
+                break;
+            case 'minor':
+                if (semVer.minor <= 0) {
+                    return semverDecrement(v, 'major');
+                }
+                semVer.minor--;
+                semVer.patch = maxVerUnit;
+                semVer.prerelease = [];
+                break;
+            case 'preminor':
+                if (semVer.minor <= 0) {
+                    return semverDecrement(v, 'premajor');
+                }
+                semVer.minor--;
+                semVer.patch = maxVerUnit;
+                semVer.prerelease = maxPrerelease;
+                break;
+            case 'patch':
+                if (semVer.patch <= 0) {
+                    return semverDecrement(v, 'minor');
+                }
+                semVer.patch--;
+                semVer.prerelease = [];
+                break;
+            case 'prepatch':
+                if (semVer.patch <= 0) {
+                    return semverDecrement(v, 'preminor');
+                }
+                semVer.patch--;
+                semVer.prerelease = maxPrerelease;
+                break;
+            case 'prerelease':
+                if (semVer.prerelease.length === 0) {
+                    semVer.prerelease = maxPrerelease;
+                } else if (
+                    equal(semVer.prerelease, [0]) ||
+                    equal(semVer.prerelease, ['0'])
+                ) {
+                    return semverDecrement(v, 'patch');
+                } else {
+                    semVer.prerelease = minPrerelease;
+                }
+                break;
+            default:
+                return null;
+        }
+        semVer.format();
+        return semVer.version;
+    } catch (e) {
+        return null;
+    }
+}
+
 const testNameList: string[] = [];
 
 const validateOutputMacro: Macro<[string[], string | null]> = (
@@ -75,6 +154,60 @@ const validateOutputRangeMacro: Macro<[string[], string]> = (
     expected,
 ): void => {
     [...permutations(input)].filter(uniqueFilter).forEach(input => {
+        // Verify that the expected value is correct
+        const expectedBoundaryVersionList = input
+            .map(versionRange => {
+                return new semver.Range(versionRange).set
+                    .reduce((l, c) => l.concat(c), [])
+                    .map(comparator => {
+                        if (comparator.semver instanceof semver.SemVer) {
+                            return [comparator];
+                        } else {
+                            return ['>=0.0.0', '<=999.999.999'].map(
+                                r => new semver.Comparator(r),
+                            );
+                        }
+                    })
+                    .reduce((l, c) => l.concat(c), [])
+                    .map(comparator => {
+                        const version = String(comparator.semver);
+                        return [
+                            String(comparator),
+                            ...uniqueArray(
+                                [
+                                    version,
+                                    ...([
+                                        'major',
+                                        'premajor',
+                                        'minor',
+                                        'preminor',
+                                        'patch',
+                                        'prepatch',
+                                        'prerelease',
+                                    ] as semver.ReleaseType[])
+                                        .map(release => [
+                                            semverDecrement(version, release),
+                                            semver.inc(version, release),
+                                        ])
+                                        .reduce((l, v) => l.concat(v)),
+                                ].filter(isNotNull),
+                            ),
+                        ];
+                    })
+                    .reduce((l, v) => l.concat(v), []);
+            })
+            .reduce((l, v) => l.concat(v), []);
+        expectedBoundaryVersionList.forEach(version => {
+            if (
+                semver.satisfies(version, expected) !==
+                input.every(range => semver.satisfies(version, range))
+            ) {
+                throw new Error(
+                    `Invalid expected value "${expected}"; Version ${version} results do not match boundary values`,
+                );
+            }
+        });
+
         const intersectRange = intersect(...input);
         const normalizedInput =
             intersectRange !== null ? semver.validRange(intersectRange) : null;
