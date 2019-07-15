@@ -277,11 +277,7 @@ getRangeCombinations([['*'], ['^1.5.1', '^1.5.8']]).forEach(versionListList => {
     );
 });
 test(validateOutputRangeMacro, ['* || *', '* || *'], '*');
-test(
-    validateOutputRangeMacro,
-    ['^1.9.0-alpha', '*', '^1.9.0-beta'],
-    '^1.9.0-beta',
-);
+test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
 
 // Note: I am not sure if this test is correct
 [
