@@ -77,13 +77,27 @@ export class SingleRange implements SingleRangeInterface {
             if (singleRange instanceof SingleVer) {
                 return singleRange;
             } else {
-                const lowerBound = getLowerBoundComparator([
+                const lowerBoundComparatorList = [
                     this.lowerBound,
                     singleRange.lowerBound,
-                ]);
-                const upperBound = getUpperBoundComparator([
+                ];
+                const upperBoundComparatorList = [
                     this.upperBound,
                     singleRange.upperBound,
+                ];
+                const lowerBound = getLowerBoundComparator([
+                    ...lowerBoundComparatorList,
+                    ...upperBoundComparatorList.filter(
+                        comparator =>
+                            comparator.semver instanceof semver.SemVer,
+                    ),
+                ]);
+                const upperBound = getUpperBoundComparator([
+                    ...upperBoundComparatorList,
+                    ...lowerBoundComparatorList.filter(
+                        comparator =>
+                            comparator.semver instanceof semver.SemVer,
+                    ),
                 ]);
 
                 if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {

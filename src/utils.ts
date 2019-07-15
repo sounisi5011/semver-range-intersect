@@ -128,6 +128,9 @@ export function getLowerBoundComparator(
             isValidOperator(comparator, ['>', '>=']) ||
             !(comparator.semver instanceof semver.SemVer),
     );
+    const leComparatorVersionList = comparatorList
+        .filter(filterOperator(['<=']))
+        .map(comparator2versionStr);
     if (validComparatorList.length >= 1) {
         return validComparatorList.reduce((a, b) => {
             const semverA: semver.SemVer | {} = a.semver;
@@ -143,7 +146,15 @@ export function getLowerBoundComparator(
             // *           / >=2.0.0-pre ... >=2.0.0
             // *           / *       ... *
             if (!(semverA instanceof semver.SemVer)) {
-                if (isPrerelease(semverB)) {
+                if (
+                    isPrerelease(semverB) &&
+                    !(
+                        b.operator === '>=' &&
+                        leComparatorVersionList.some(
+                            version => version === String(semverB),
+                        )
+                    )
+                ) {
                     return new semver.Comparator(
                         `>=${stripSemVerPrerelease(semverB)}`,
                         b.options,
@@ -151,7 +162,15 @@ export function getLowerBoundComparator(
                 }
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
-                if (isPrerelease(semverA)) {
+                if (
+                    isPrerelease(semverA) &&
+                    !(
+                        a.operator === '>=' &&
+                        leComparatorVersionList.some(
+                            version => version === String(semverA),
+                        )
+                    )
+                ) {
                     return new semver.Comparator(
                         `>=${stripSemVerPrerelease(semverA)}`,
                         a.options,
@@ -217,6 +236,9 @@ export function getUpperBoundComparator(
             isValidOperator(comparator, ['<', '<=']) ||
             !(comparator.semver instanceof semver.SemVer),
     );
+    const geComparatorVersionList = comparatorList
+        .filter(filterOperator(['>=']))
+        .map(comparator2versionStr);
     if (validComparatorList.length >= 1) {
         return validComparatorList.reduce((a, b) => {
             const semverA: semver.SemVer | {} = a.semver;
@@ -232,7 +254,15 @@ export function getUpperBoundComparator(
             // *           / <=2.0.0-pre ... <2.0.0
             // *           / *           ... *
             if (!(semverA instanceof semver.SemVer)) {
-                if (isPrerelease(semverB)) {
+                if (
+                    isPrerelease(semverB) &&
+                    !(
+                        b.operator === '<=' &&
+                        geComparatorVersionList.some(
+                            version => version === String(semverB),
+                        )
+                    )
+                ) {
                     return new semver.Comparator(
                         `<${stripSemVerPrerelease(semverB)}`,
                         b.options,
@@ -240,7 +270,15 @@ export function getUpperBoundComparator(
                 }
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
-                if (isPrerelease(semverA)) {
+                if (
+                    isPrerelease(semverA) &&
+                    !(
+                        a.operator === '<=' &&
+                        geComparatorVersionList.some(
+                            version => version === String(semverA),
+                        )
+                    )
+                ) {
                     return new semver.Comparator(
                         `<${stripSemVerPrerelease(semverA)}`,
                         a.options,
