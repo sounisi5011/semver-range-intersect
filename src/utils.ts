@@ -122,6 +122,7 @@ export function stripComparatorOperator(
 
 export function getLowerBoundComparator(
     comparatorList: readonly semver.Comparator[],
+    options: { singleRange?: boolean } = {},
 ): semver.Comparator {
     const validComparatorList = comparatorList.filter(
         comparator =>
@@ -147,6 +148,7 @@ export function getLowerBoundComparator(
             // *           / *       ... *
             if (!(semverA instanceof semver.SemVer)) {
                 if (
+                    !options.singleRange &&
                     isPrerelease(semverB) &&
                     !(
                         b.operator === '>=' &&
@@ -163,6 +165,7 @@ export function getLowerBoundComparator(
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
                 if (
+                    !options.singleRange &&
                     isPrerelease(semverA) &&
                     !(
                         a.operator === '>=' &&
@@ -230,6 +233,7 @@ export function getLowerBoundComparator(
 
 export function getUpperBoundComparator(
     comparatorList: readonly semver.Comparator[],
+    options: { singleRange?: boolean } = {},
 ): semver.Comparator {
     const validComparatorList = comparatorList.filter(
         comparator =>
@@ -255,6 +259,7 @@ export function getUpperBoundComparator(
             // *           / *           ... *
             if (!(semverA instanceof semver.SemVer)) {
                 if (
+                    !options.singleRange &&
                     isPrerelease(semverB) &&
                     !(
                         b.operator === '<=' &&
@@ -271,6 +276,7 @@ export function getUpperBoundComparator(
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
                 if (
+                    !options.singleRange &&
                     isPrerelease(semverA) &&
                     !(
                         a.operator === '<=' &&

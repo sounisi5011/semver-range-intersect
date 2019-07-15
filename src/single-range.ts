@@ -254,8 +254,12 @@ export function createSingleRange(
         .filter(filterUniqueComparator);
     switch (equalsComparatorList.length) {
         case 0: {
-            const lowerBound = getLowerBoundComparator(comparatorList);
-            const upperBound = getUpperBoundComparator(comparatorList);
+            const lowerBound = getLowerBoundComparator(comparatorList, {
+                singleRange: true,
+            });
+            const upperBound = getUpperBoundComparator(comparatorList, {
+                singleRange: true,
+            });
             if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {
                 return new SingleVer(stripComparatorOperator(lowerBound));
             }
