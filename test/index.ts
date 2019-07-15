@@ -121,12 +121,14 @@ const validateOutputRangeMacro: Macro<[string[], string]> = (
             })
             .reduce((l, v) => l.concat(v), []);
         expectedBoundaryVersionList.forEach(version => {
-            if (
-                semver.satisfies(version, expected) !==
-                input.every(range => semver.satisfies(version, range))
-            ) {
+            const isSatisfies = input.every(range =>
+                semver.satisfies(version, range),
+            );
+            if (semver.satisfies(version, expected) !== isSatisfies) {
                 throw new Error(
-                    `Invalid expected value "${expected}"; Version ${version} results do not match boundary values`,
+                    `Invalid the expected value "${expected}"; Intersecting version range ${
+                        isSatisfies ? 'should' : 'should not'
+                    } accept ${version}`,
                 );
             }
         });
