@@ -1,9 +1,10 @@
 # Change Log
 
-## [0.x]
+## [0.3.0] (2019-07-15 UTC / 2019-07-16 JST)
 
 ### Bug Fixes
 
+* [#32] - Ignore non-matching ranges delimited by `||`
 * [#35] - Fixed prerelease version range processing logic
 
 ### Updated Dependencies
@@ -33,16 +34,19 @@
 ### Tests
 
 * [#28] - Check peerDependencies
+* [#34] - Verify test expected values
 
 ### Others
 
 * [#31] - Replace build script `script/git-add-pkg-version-tag.ts` with package-version-git-tag package.
 
-[0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.2.0...HEAD
+[0.3.0]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.2.0...v0.3.0
 [#24]: https://github.com/sounisi5011/semver-range-intersect/pull/24
 [#28]: https://github.com/sounisi5011/semver-range-intersect/pull/28
 [#31]: https://github.com/sounisi5011/semver-range-intersect/pull/31
+[#32]: https://github.com/sounisi5011/semver-range-intersect/pull/32
 [#33]: https://github.com/sounisi5011/semver-range-intersect/pull/33
+[#34]: https://github.com/sounisi5011/semver-range-intersect/pull/34
 [#35]: https://github.com/sounisi5011/semver-range-intersect/pull/35
 
 ## [0.2.0] (2019-07-10)
