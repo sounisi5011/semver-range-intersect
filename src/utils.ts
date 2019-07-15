@@ -93,7 +93,12 @@ export function isIntersectRanges(
     );
 }
 
-export function stripSemVerPrerelease(semverVersion: semver.SemVer): string {
+export function stripSemVerPrerelease(
+    semverVersion: semver.SemVer | {},
+): string {
+    if (!(semverVersion instanceof semver.SemVer)) {
+        return '';
+    }
     if (!semverVersion.prerelease.length) {
         return semverVersion.version;
     }
@@ -119,21 +124,39 @@ export function getLowerBoundComparator(
     comparatorList: readonly semver.Comparator[],
 ): semver.Comparator {
     const validComparatorList = comparatorList.filter(
-        filterOperator(['>', '>=']),
+        comparator =>
+            isValidOperator(comparator, ['>', '>=']) ||
+            !(comparator.semver instanceof semver.SemVer),
     );
     if (validComparatorList.length >= 1) {
         return validComparatorList.reduce((a, b) => {
             const semverA: semver.SemVer | {} = a.semver;
             const semverB: semver.SemVer | {} = b.semver;
 
-            // >2.0.0  / *       ... >2.0.0
-            // >=2.0.0 / *       ... >=2.0.0
-            // *       / >2.0.0  ... >2.0.0
-            // *       / >=2.0.0 ... >=2.0.0
-            // *       / *       ... *
+            // >2.0.0      / *           ... >2.0.0
+            // >2.0.0-pre  / *           ... >=2.0.0
+            // >=2.0.0     / *           ... >=2.0.0
+            // >=2.0.0-pre / *           ... >=2.0.0
+            // *           / >2.0.0      ... >2.0.0
+            // *           / >2.0.0-pre  ... >=2.0.0
+            // *           / >=2.0.0     ... >=2.0.0
+            // *           / >=2.0.0-pre ... >=2.0.0
+            // *           / *       ... *
             if (!(semverA instanceof semver.SemVer)) {
+                if (isPrerelease(semverB)) {
+                    return new semver.Comparator(
+                        `>=${stripSemVerPrerelease(semverB)}`,
+                        b.options,
+                    );
+                }
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
+                if (isPrerelease(semverA)) {
+                    return new semver.Comparator(
+                        `>=${stripSemVerPrerelease(semverA)}`,
+                        a.options,
+                    );
+                }
                 return a;
             }
 
@@ -190,21 +213,39 @@ export function getUpperBoundComparator(
     comparatorList: readonly semver.Comparator[],
 ): semver.Comparator {
     const validComparatorList = comparatorList.filter(
-        filterOperator(['<', '<=']),
+        comparator =>
+            isValidOperator(comparator, ['<', '<=']) ||
+            !(comparator.semver instanceof semver.SemVer),
     );
     if (validComparatorList.length >= 1) {
         return validComparatorList.reduce((a, b) => {
             const semverA: semver.SemVer | {} = a.semver;
             const semverB: semver.SemVer | {} = b.semver;
 
-            // <2.0.0  / *       ... <2.0.0
-            // <=2.0.0 / *       ... <=2.0.0
-            // *       / <2.0.0  ... <2.0.0
-            // *       / <=2.0.0 ... <=2.0.0
-            // *       / *       ... *
+            // <2.0.0      / *           ... <2.0.0
+            // <2.0.0-pre  / *           ... <2.0.0
+            // <=2.0.0     / *           ... <=2.0.0
+            // <=2.0.0-pre / *           ... <2.0.0
+            // *           / <2.0.0      ... <2.0.0
+            // *           / <2.0.0-pre  ... <2.0.0
+            // *           / <=2.0.0     ... <=2.0.0
+            // *           / <=2.0.0-pre ... <2.0.0
+            // *           / *           ... *
             if (!(semverA instanceof semver.SemVer)) {
+                if (isPrerelease(semverB)) {
+                    return new semver.Comparator(
+                        `<${stripSemVerPrerelease(semverB)}`,
+                        b.options,
+                    );
+                }
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
+                if (isPrerelease(semverA)) {
+                    return new semver.Comparator(
+                        `<${stripSemVerPrerelease(semverA)}`,
+                        a.options,
+                    );
+                }
                 return a;
             }
 
