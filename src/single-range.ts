@@ -5,6 +5,7 @@ import {
     getLowerBoundComparator,
     getUpperBoundComparator,
     isEqualsComparator,
+    isPrerelease,
     isSameVersionEqualsLikeComparator,
     stripComparatorOperator,
 } from './utils';
@@ -76,13 +77,27 @@ export class SingleRange implements SingleRangeInterface {
             if (singleRange instanceof SingleVer) {
                 return singleRange;
             } else {
-                const lowerBound = getLowerBoundComparator([
+                const lowerBoundComparatorList = [
                     this.lowerBound,
                     singleRange.lowerBound,
-                ]);
-                const upperBound = getUpperBoundComparator([
+                ];
+                const upperBoundComparatorList = [
                     this.upperBound,
                     singleRange.upperBound,
+                ];
+                const lowerBound = getLowerBoundComparator([
+                    ...lowerBoundComparatorList,
+                    ...upperBoundComparatorList.filter(
+                        comparator =>
+                            comparator.semver instanceof semver.SemVer,
+                    ),
+                ]);
+                const upperBound = getUpperBoundComparator([
+                    ...upperBoundComparatorList,
+                    ...lowerBoundComparatorList.filter(
+                        comparator =>
+                            comparator.semver instanceof semver.SemVer,
+                    ),
                 ]);
 
                 if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {
@@ -108,15 +123,36 @@ export class SingleRange implements SingleRangeInterface {
                     const semverA: semver.SemVer | {} = a.semver;
                     const semverB: semver.SemVer | {} = b.semver;
 
-                    // >2.0.0  / *       ... *
-                    // >=2.0.0 / *       ... *
-                    // *       / >2.0.0  ... *
-                    // *       / >=2.0.0 ... *
-                    // *       / *       ... *
+                    // >2.0.0      / *           ... *
+                    // >2.0.0-pre  / *           ... null
+                    // >=2.0.0     / *           ... *
+                    // >=2.0.0-pre / *           ... null
+                    // *           / >2.0.0      ... *
+                    // *           / >2.0.0-pre  ... null
+                    // *           / >=2.0.0     ... *
+                    // *           / >=2.0.0-pre ... null
+                    // *           / *           ... *
                     if (!(semverA instanceof semver.SemVer)) {
+                        if (isPrerelease(semverB)) {
+                            return null;
+                        }
                         return a;
                     } else if (!(semverB instanceof semver.SemVer)) {
+                        if (isPrerelease(semverA)) {
+                            return null;
+                        }
                         return b;
+                    }
+
+                    // >=1.2.3-alpha / >=1.2.4-alpha ... null
+                    // >=1.2.3       / >=1.2.4-alpha ... null
+                    // >=1.9.0-pre   / >=0.0.0       ... null
+                    const cmpMain = semverA.compareMain(semverB);
+                    if (
+                        (cmpMain < 0 && isPrerelease(semverB)) ||
+                        (cmpMain > 0 && isPrerelease(semverA))
+                    ) {
+                        return null;
                     }
 
                     const semverCmp = semver.compare(semverA, semverB);
@@ -146,15 +182,35 @@ export class SingleRange implements SingleRangeInterface {
                     const semverA: semver.SemVer | {} = a.semver;
                     const semverB: semver.SemVer | {} = b.semver;
 
-                    // <2.0.0  / *       ... *
-                    // <=2.0.0 / *       ... *
-                    // *       / <2.0.0  ... *
-                    // *       / <=2.0.0 ... *
-                    // *       / *       ... *
+                    // <2.0.0      / *           ... *
+                    // <2.0.0-pre  / *           ... null
+                    // <=2.0.0     / *           ... *
+                    // <=2.0.0-pre / *           ... null
+                    // *           / <2.0.0      ... *
+                    // *           / <2.0.0-pre  ... null
+                    // *           / <=2.0.0     ... *
+                    // *           / <=2.0.0-pre ... null
+                    // *           / *           ... *
                     if (!(semverA instanceof semver.SemVer)) {
+                        if (isPrerelease(semverB)) {
+                            return null;
+                        }
                         return a;
                     } else if (!(semverB instanceof semver.SemVer)) {
+                        if (isPrerelease(semverA)) {
+                            return null;
+                        }
                         return b;
+                    }
+
+                    // <=1.2.3-alpha / <=1.2.4-alpha ... null
+                    // <=1.2.3-alpha / <=1.2.4       ... null
+                    const cmpMain = semverA.compareMain(semverB);
+                    if (
+                        (cmpMain > 0 && isPrerelease(semverB)) ||
+                        (cmpMain < 0 && isPrerelease(semverA))
+                    ) {
+                        return null;
                     }
 
                     const semverCmp = semver.compare(semverA, semverB);
@@ -181,7 +237,9 @@ export class SingleRange implements SingleRangeInterface {
                     }
                 })(this.upperBound, singleRange.upperBound);
 
-                return new SingleRange(lowerBound, upperBound);
+                if (lowerBound && upperBound) {
+                    return new SingleRange(lowerBound, upperBound);
+                }
             }
         }
         return null;
@@ -196,8 +254,12 @@ export function createSingleRange(
         .filter(filterUniqueComparator);
     switch (equalsComparatorList.length) {
         case 0: {
-            const lowerBound = getLowerBoundComparator(comparatorList);
-            const upperBound = getUpperBoundComparator(comparatorList);
+            const lowerBound = getLowerBoundComparator(comparatorList, {
+                singleRange: true,
+            });
+            const upperBound = getUpperBoundComparator(comparatorList, {
+                singleRange: true,
+            });
             if (isSameVersionEqualsLikeComparator(lowerBound, upperBound)) {
                 return new SingleVer(stripComparatorOperator(lowerBound));
             }

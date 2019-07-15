@@ -14,6 +14,14 @@ export function isNoIncludeNull<T>(
     return value.every(isNotNull);
 }
 
+export function isPrerelease(version: semver.SemVer | {}): boolean {
+    if (version instanceof semver.SemVer) {
+        return version.prerelease.length !== 0;
+    } else {
+        return false;
+    }
+}
+
 export function isValidOperator(
     comparator: semver.Comparator,
     operatorList: readonly semver.Comparator['operator'][],
@@ -85,7 +93,12 @@ export function isIntersectRanges(
     );
 }
 
-export function stripSemVerPrerelease(semverVersion: semver.SemVer): string {
+export function stripSemVerPrerelease(
+    semverVersion: semver.SemVer | {},
+): string {
+    if (!(semverVersion instanceof semver.SemVer)) {
+        return '';
+    }
     if (!semverVersion.prerelease.length) {
         return semverVersion.version;
     }
@@ -109,45 +122,87 @@ export function stripComparatorOperator(
 
 export function getLowerBoundComparator(
     comparatorList: readonly semver.Comparator[],
+    options: { singleRange?: boolean } = {},
 ): semver.Comparator {
     const validComparatorList = comparatorList.filter(
-        filterOperator(['>', '>=']),
+        comparator =>
+            isValidOperator(comparator, ['>', '>=']) ||
+            !(comparator.semver instanceof semver.SemVer),
     );
+    const leComparatorVersionList = comparatorList
+        .filter(filterOperator(['<=']))
+        .map(comparator2versionStr);
     if (validComparatorList.length >= 1) {
         return validComparatorList.reduce((a, b) => {
             const semverA: semver.SemVer | {} = a.semver;
             const semverB: semver.SemVer | {} = b.semver;
 
-            // >2.0.0  / *       ... >2.0.0
-            // >=2.0.0 / *       ... >=2.0.0
-            // *       / >2.0.0  ... >2.0.0
-            // *       / >=2.0.0 ... >=2.0.0
-            // *       / *       ... *
+            // >2.0.0      / *           ... >2.0.0
+            // >2.0.0-pre  / *           ... >=2.0.0
+            // >=2.0.0     / *           ... >=2.0.0
+            // >=2.0.0-pre / *           ... >=2.0.0
+            // *           / >2.0.0      ... >2.0.0
+            // *           / >2.0.0-pre  ... >=2.0.0
+            // *           / >=2.0.0     ... >=2.0.0
+            // *           / >=2.0.0-pre ... >=2.0.0
+            // *           / *       ... *
             if (!(semverA instanceof semver.SemVer)) {
+                if (
+                    !options.singleRange &&
+                    isPrerelease(semverB) &&
+                    !(
+                        b.operator === '>=' &&
+                        leComparatorVersionList.some(
+                            version => version === String(semverB),
+                        )
+                    )
+                ) {
+                    return new semver.Comparator(
+                        `>=${stripSemVerPrerelease(semverB)}`,
+                        b.options,
+                    );
+                }
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
+                if (
+                    !options.singleRange &&
+                    isPrerelease(semverA) &&
+                    !(
+                        a.operator === '>=' &&
+                        leComparatorVersionList.some(
+                            version => version === String(semverA),
+                        )
+                    )
+                ) {
+                    return new semver.Comparator(
+                        `>=${stripSemVerPrerelease(semverA)}`,
+                        a.options,
+                    );
+                }
                 return a;
             }
 
             const semverCmp = semver.compare(semverA, semverB);
             if (a.operator === b.operator || semverCmp !== 0) {
-                const semverCmpMain = semverA.compareMain(semverB);
-                if (
-                    semverCmpMain !== 0 &&
-                    semverA.prerelease.length &&
-                    semverB.prerelease.length
-                ) {
-                    // ^1.9.0-alpha / ^1.9.1-alpha ... ^1.9.1
-                    if (semverCmpMain > 0) {
-                        return new semver.Comparator(
-                            a.operator + stripSemVerPrerelease(semverA),
-                            a.options,
-                        );
-                    } else {
-                        return new semver.Comparator(
-                            b.operator + stripSemVerPrerelease(semverB),
-                            b.options,
-                        );
+                if (!options.singleRange) {
+                    const semverCmpMain = semverA.compareMain(semverB);
+                    if (
+                        semverCmpMain !== 0 &&
+                        semverA.prerelease.length &&
+                        semverB.prerelease.length
+                    ) {
+                        // ^1.9.0-alpha / ^1.9.1-alpha ... ^1.9.1
+                        if (semverCmpMain > 0) {
+                            return new semver.Comparator(
+                                a.operator + stripSemVerPrerelease(semverA),
+                                a.options,
+                            );
+                        } else {
+                            return new semver.Comparator(
+                                b.operator + stripSemVerPrerelease(semverB),
+                                b.options,
+                            );
+                        }
                     }
                 }
 
@@ -180,48 +235,90 @@ export function getLowerBoundComparator(
 
 export function getUpperBoundComparator(
     comparatorList: readonly semver.Comparator[],
+    options: { singleRange?: boolean } = {},
 ): semver.Comparator {
     const validComparatorList = comparatorList.filter(
-        filterOperator(['<', '<=']),
+        comparator =>
+            isValidOperator(comparator, ['<', '<=']) ||
+            !(comparator.semver instanceof semver.SemVer),
     );
+    const geComparatorVersionList = comparatorList
+        .filter(filterOperator(['>=']))
+        .map(comparator2versionStr);
     if (validComparatorList.length >= 1) {
         return validComparatorList.reduce((a, b) => {
             const semverA: semver.SemVer | {} = a.semver;
             const semverB: semver.SemVer | {} = b.semver;
 
-            // <2.0.0  / *       ... <2.0.0
-            // <=2.0.0 / *       ... <=2.0.0
-            // *       / <2.0.0  ... <2.0.0
-            // *       / <=2.0.0 ... <=2.0.0
-            // *       / *       ... *
+            // <2.0.0      / *           ... <2.0.0
+            // <2.0.0-pre  / *           ... <2.0.0
+            // <=2.0.0     / *           ... <=2.0.0
+            // <=2.0.0-pre / *           ... <2.0.0
+            // *           / <2.0.0      ... <2.0.0
+            // *           / <2.0.0-pre  ... <2.0.0
+            // *           / <=2.0.0     ... <=2.0.0
+            // *           / <=2.0.0-pre ... <2.0.0
+            // *           / *           ... *
             if (!(semverA instanceof semver.SemVer)) {
+                if (
+                    !options.singleRange &&
+                    isPrerelease(semverB) &&
+                    !(
+                        b.operator === '<=' &&
+                        geComparatorVersionList.some(
+                            version => version === String(semverB),
+                        )
+                    )
+                ) {
+                    return new semver.Comparator(
+                        `<${stripSemVerPrerelease(semverB)}`,
+                        b.options,
+                    );
+                }
                 return b;
             } else if (!(semverB instanceof semver.SemVer)) {
+                if (
+                    !options.singleRange &&
+                    isPrerelease(semverA) &&
+                    !(
+                        a.operator === '<=' &&
+                        geComparatorVersionList.some(
+                            version => version === String(semverA),
+                        )
+                    )
+                ) {
+                    return new semver.Comparator(
+                        `<${stripSemVerPrerelease(semverA)}`,
+                        a.options,
+                    );
+                }
                 return a;
             }
 
             const semverCmp = semver.compare(semverA, semverB);
             if (a.operator === b.operator || semverCmp !== 0) {
-                const semverCmpMain = semverA.compareMain(semverB);
-                if (
-                    semverCmpMain !== 0 &&
-                    semverA.prerelease.length &&
-                    semverB.prerelease.length
-                ) {
-                    // <=1.9.0-alpha / <=1.9.1-alpha ... <1.9.0
-                    // <1.9.0-alpha  / <1.9.1-alpha  ... <1.9.0
-                    // <=1.9.0-alpha / <1.9.1-alpha  ... <1.9.0
-                    // <1.9.0-alpha  / <=1.9.1-alpha ... <1.9.0
-                    if (semverCmpMain < 0) {
-                        return new semver.Comparator(
-                            `<${stripSemVerPrerelease(semverA)}`,
-                            a.options,
-                        );
-                    } else {
-                        return new semver.Comparator(
-                            `<${stripSemVerPrerelease(semverB)}`,
-                            b.options,
-                        );
+                if (!options.singleRange) {
+                    const semverCmpMain = semverA.compareMain(semverB);
+                    if (
+                        semverCmpMain !== 0 &&
+                        semverA.prerelease.length &&
+                        semverB.prerelease.length
+                    ) {
+                        // <=1.9.0-alpha / <=1.9.1-alpha ... <1.9.0
+                        // <1.9.0-alpha  / <1.9.1-alpha  ... <1.9.0
+                        // <=1.9.0-alpha / <1.9.1-alpha  ... <1.9.0
+                        // <1.9.0-alpha  / <=1.9.1-alpha ... <1.9.0
+                        if (semverCmpMain < 0) {
+                            return new semver.Comparator(
+                                `<${stripSemVerPrerelease(semverA)}`,
+                                a.options,
+                            );
+                        } else {
+                            return new semver.Comparator(
+                                `<${stripSemVerPrerelease(semverB)}`,
+                                b.options,
+                            );
+                        }
                     }
                 }
 
