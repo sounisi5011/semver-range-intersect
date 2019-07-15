@@ -184,23 +184,25 @@ export function getLowerBoundComparator(
 
             const semverCmp = semver.compare(semverA, semverB);
             if (a.operator === b.operator || semverCmp !== 0) {
-                const semverCmpMain = semverA.compareMain(semverB);
-                if (
-                    semverCmpMain !== 0 &&
-                    semverA.prerelease.length &&
-                    semverB.prerelease.length
-                ) {
-                    // ^1.9.0-alpha / ^1.9.1-alpha ... ^1.9.1
-                    if (semverCmpMain > 0) {
-                        return new semver.Comparator(
-                            a.operator + stripSemVerPrerelease(semverA),
-                            a.options,
-                        );
-                    } else {
-                        return new semver.Comparator(
-                            b.operator + stripSemVerPrerelease(semverB),
-                            b.options,
-                        );
+                if (!options.singleRange) {
+                    const semverCmpMain = semverA.compareMain(semverB);
+                    if (
+                        semverCmpMain !== 0 &&
+                        semverA.prerelease.length &&
+                        semverB.prerelease.length
+                    ) {
+                        // ^1.9.0-alpha / ^1.9.1-alpha ... ^1.9.1
+                        if (semverCmpMain > 0) {
+                            return new semver.Comparator(
+                                a.operator + stripSemVerPrerelease(semverA),
+                                a.options,
+                            );
+                        } else {
+                            return new semver.Comparator(
+                                b.operator + stripSemVerPrerelease(semverB),
+                                b.options,
+                            );
+                        }
                     }
                 }
 
@@ -295,26 +297,28 @@ export function getUpperBoundComparator(
 
             const semverCmp = semver.compare(semverA, semverB);
             if (a.operator === b.operator || semverCmp !== 0) {
-                const semverCmpMain = semverA.compareMain(semverB);
-                if (
-                    semverCmpMain !== 0 &&
-                    semverA.prerelease.length &&
-                    semverB.prerelease.length
-                ) {
-                    // <=1.9.0-alpha / <=1.9.1-alpha ... <1.9.0
-                    // <1.9.0-alpha  / <1.9.1-alpha  ... <1.9.0
-                    // <=1.9.0-alpha / <1.9.1-alpha  ... <1.9.0
-                    // <1.9.0-alpha  / <=1.9.1-alpha ... <1.9.0
-                    if (semverCmpMain < 0) {
-                        return new semver.Comparator(
-                            `<${stripSemVerPrerelease(semverA)}`,
-                            a.options,
-                        );
-                    } else {
-                        return new semver.Comparator(
-                            `<${stripSemVerPrerelease(semverB)}`,
-                            b.options,
-                        );
+                if (!options.singleRange) {
+                    const semverCmpMain = semverA.compareMain(semverB);
+                    if (
+                        semverCmpMain !== 0 &&
+                        semverA.prerelease.length &&
+                        semverB.prerelease.length
+                    ) {
+                        // <=1.9.0-alpha / <=1.9.1-alpha ... <1.9.0
+                        // <1.9.0-alpha  / <1.9.1-alpha  ... <1.9.0
+                        // <=1.9.0-alpha / <1.9.1-alpha  ... <1.9.0
+                        // <1.9.0-alpha  / <=1.9.1-alpha ... <1.9.0
+                        if (semverCmpMain < 0) {
+                            return new semver.Comparator(
+                                `<${stripSemVerPrerelease(semverA)}`,
+                                a.options,
+                            );
+                        } else {
+                            return new semver.Comparator(
+                                `<${stripSemVerPrerelease(semverB)}`,
+                                b.options,
+                            );
+                        }
                     }
                 }
 
