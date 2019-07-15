@@ -285,6 +285,30 @@ test.failing(
     '^1.9.0',
 );
 
+// see https://github.com/sounisi5011/semver-range-intersect/issues/26
+[...permutations(['^1.2.3-alpha', '^1.2.4-beta'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['>=1.2.3-alpha', '>=1.2.4-alpha', '>=1.2.6-alpha'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['*', '>=1.2.3-0'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+test(validateOutputRangeMacro, ['*', '>=1.2.3-0'], '>=1.2.3');
+
 // Note: I am not sure if this test is correct
 [
     ['<=1.9.0-alpha', '<=1.9.1-alpha'],
