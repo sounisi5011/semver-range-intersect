@@ -277,13 +277,7 @@ getRangeCombinations([['*'], ['^1.5.1', '^1.5.8']]).forEach(versionListList => {
     );
 });
 test(validateOutputRangeMacro, ['* || *', '* || *'], '*');
-// see https://github.com/sounisi5011/semver-range-intersect/issues/26
-// TODO: fix this test
-test.failing(
-    validateOutputRangeMacro,
-    ['^1.9.0-alpha', '*', '^1.9.0-beta'],
-    '^1.9.0',
-);
+test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
 
 // see https://github.com/sounisi5011/semver-range-intersect/issues/26
 [...permutations(['^1.2.3-alpha', '^1.2.4-beta'])]
