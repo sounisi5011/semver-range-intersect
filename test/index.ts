@@ -450,6 +450,160 @@ test(validateOutputRangeMacro, ['*', '>1.2.3-0'], '>=1.2.3');
 test(validateOutputRangeMacro, ['*', '>=1.2.3-0'], '>=1.2.3');
 test(validateOutputRangeMacro, ['*', '<=1.2.3-0'], '<1.2.3');
 test(validateOutputRangeMacro, ['*', '<1.2.3-0'], '<1.2.3');
+[...permutations(['*', '>1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+[...permutations(['*', '>1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' ')], '>1.2.3-pre');
+});
+[...permutations(['*', '>=1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+[...permutations(['*', '>=1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' ')], '>=1.2.3-pre');
+});
+[...permutations(['*', '<=1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+[...permutations(['*', '<=1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' ')], '<=1.2.3-pre');
+});
+[...permutations(['*', '<1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+[...permutations(['*', '<1.2.3-pre'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' ')], '<1.2.3-pre');
+});
+test(validateOutputRangeMacro, ['*', '>1.2.3-pre'], '>=1.2.3');
+test(validateOutputRangeMacro, ['*', '>=1.2.3-pre'], '>=1.2.3');
+test(validateOutputRangeMacro, ['*', '<=1.2.3-pre'], '<1.2.3');
+test(validateOutputRangeMacro, ['*', '<1.2.3-pre'], '<1.2.3');
+[...permutations(['1.2.3-alpha - 3.2.3-delta', '1.2.4-beta - 3.2.7-epsilon'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.3-delta', '1.2.4 - 3.2.7'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3 - 3.2.3', '1.2.4-beta - 3.2.7-epsilon'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.3', '1.2.4-beta - 3.2.7'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3 - 3.2.3-delta', '1.2.4 - 3.2.7-epsilon'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.3', '1.2.4 - 3.2.7-epsilon'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            '1.2.3-alpha - 3.2.7-epsilon',
+        );
+    });
+[...permutations(['1.2.3 - 3.2.3-delta', '1.2.4-beta - 3.2.7'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.7-epsilon', '1.2.4-beta - 3.2.3-delta'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.7-epsilon', '1.2.4 - 3.2.3'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            '1.2.3-alpha - 3.2.7-epsilon',
+        );
+    });
+[...permutations(['1.2.3 - 3.2.7', '1.2.4-beta - 3.2.3-delta'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.7', '1.2.4-beta - 3.2.3'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3 - 3.2.7-epsilon', '1.2.4 - 3.2.3-delta'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3-alpha - 3.2.7', '1.2.4 - 3.2.3-delta'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['1.2.3 - 3.2.7-epsilon', '1.2.4-beta - 3.2.3'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
 
 // Note: I am not sure if this test is correct
 [
