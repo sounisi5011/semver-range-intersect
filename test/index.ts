@@ -351,9 +351,9 @@ test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
 [...permutations(['*', '<1.2.3-0'])].filter(uniqueFilter).forEach(input => {
     test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
 });
-test(validateOutputRangeMacro, ['*', '>1.2.3-0'], '>1.2.3');
+test(validateOutputRangeMacro, ['*', '>1.2.3-0'], '>=1.2.3');
 test(validateOutputRangeMacro, ['*', '>=1.2.3-0'], '>=1.2.3');
-test(validateOutputRangeMacro, ['*', '<=1.2.3-0'], '<=1.2.3');
+test(validateOutputRangeMacro, ['*', '<=1.2.3-0'], '<1.2.3');
 test(validateOutputRangeMacro, ['*', '<1.2.3-0'], '<1.2.3');
 
 // Note: I am not sure if this test is correct
