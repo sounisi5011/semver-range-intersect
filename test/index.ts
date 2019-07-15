@@ -303,6 +303,34 @@ test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
             input.join(' || '),
         );
     });
+[...permutations(['>=1.9.0-pre', '>=0.0.0'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['>=1.9.0', '>=0.0.0-pre'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(validateOutputRangeMacro, [input.join(' || ')], '>=0.0.0-pre');
+    });
+[...permutations(['<=1.9.0-pre', '<=2.0.0'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['<=1.9.0', '<=2.0.0-pre'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(validateOutputRangeMacro, [input.join(' || ')], '<=2.0.0-pre');
+    });
 [...permutations(['>1.2.3-alpha', '>1.2.4-alpha', '>1.2.6-alpha'])]
     .filter(uniqueFilter)
     .forEach(input => {
