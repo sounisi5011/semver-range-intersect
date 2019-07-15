@@ -131,11 +131,12 @@ export class SingleRange implements SingleRangeInterface {
                     }
 
                     // >=1.2.3-alpha / >=1.2.4-alpha ... null
+                    // >=1.2.3       / >=1.2.4-alpha ... null
                     // >=1.9.0-pre   / >=0.0.0       ... null
+                    const cmpMain = semverA.compareMain(semverB);
                     if (
-                        isPrerelease(semverA) &&
-                        isPrerelease(semverB) &&
-                        semverA.compareMain(semverB) !== 0
+                        (cmpMain < 0 && isPrerelease(semverB)) ||
+                        (cmpMain > 0 && isPrerelease(semverA))
                     ) {
                         return null;
                     }
@@ -189,11 +190,11 @@ export class SingleRange implements SingleRangeInterface {
                     }
 
                     // <=1.2.3-alpha / <=1.2.4-alpha ... null
-                    // <=1.9.0-pre   / <=0.0.0       ... null
+                    // <=1.2.3-alpha / <=1.2.4       ... null
+                    const cmpMain = semverA.compareMain(semverB);
                     if (
-                        isPrerelease(semverA) &&
-                        isPrerelease(semverB) &&
-                        semverA.compareMain(semverB) !== 0
+                        (cmpMain > 0 && isPrerelease(semverB)) ||
+                        (cmpMain < 0 && isPrerelease(semverA))
                     ) {
                         return null;
                     }
