@@ -14,6 +14,14 @@ export function isNoIncludeNull<T>(
     return value.every(isNotNull);
 }
 
+export function isPrerelease(version: semver.SemVer | {}): boolean {
+    if (version instanceof semver.SemVer) {
+        return version.prerelease.length !== 0;
+    } else {
+        return false;
+    }
+}
+
 export function isValidOperator(
     comparator: semver.Comparator,
     operatorList: readonly semver.Comparator['operator'][],

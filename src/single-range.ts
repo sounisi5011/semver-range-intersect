@@ -5,6 +5,7 @@ import {
     getLowerBoundComparator,
     getUpperBoundComparator,
     isEqualsComparator,
+    isPrerelease,
     isSameVersionEqualsLikeComparator,
     stripComparatorOperator,
 } from './utils';
@@ -108,15 +109,35 @@ export class SingleRange implements SingleRangeInterface {
                     const semverA: semver.SemVer | {} = a.semver;
                     const semverB: semver.SemVer | {} = b.semver;
 
-                    // >2.0.0  / *       ... *
-                    // >=2.0.0 / *       ... *
-                    // *       / >2.0.0  ... *
-                    // *       / >=2.0.0 ... *
-                    // *       / *       ... *
+                    // >2.0.0      / *           ... *
+                    // >2.0.0-pre  / *           ... null
+                    // >=2.0.0     / *           ... *
+                    // >=2.0.0-pre / *           ... null
+                    // *           / >2.0.0      ... *
+                    // *           / >2.0.0-pre  ... null
+                    // *           / >=2.0.0     ... *
+                    // *           / >=2.0.0-pre ... null
+                    // *           / *           ... *
                     if (!(semverA instanceof semver.SemVer)) {
+                        if (isPrerelease(semverB)) {
+                            return null;
+                        }
                         return a;
                     } else if (!(semverB instanceof semver.SemVer)) {
+                        if (isPrerelease(semverA)) {
+                            return null;
+                        }
                         return b;
+                    }
+
+                    // >=1.2.3-alpha / >=1.2.4-alpha ... null
+                    // >=1.9.0-pre   / >=0.0.0       ... null
+                    if (
+                        isPrerelease(semverA) &&
+                        isPrerelease(semverB) &&
+                        semverA.compareMain(semverB) !== 0
+                    ) {
+                        return null;
                     }
 
                     const semverCmp = semver.compare(semverA, semverB);
@@ -146,15 +167,35 @@ export class SingleRange implements SingleRangeInterface {
                     const semverA: semver.SemVer | {} = a.semver;
                     const semverB: semver.SemVer | {} = b.semver;
 
-                    // <2.0.0  / *       ... *
-                    // <=2.0.0 / *       ... *
-                    // *       / <2.0.0  ... *
-                    // *       / <=2.0.0 ... *
-                    // *       / *       ... *
+                    // <2.0.0      / *           ... *
+                    // <2.0.0-pre  / *           ... null
+                    // <=2.0.0     / *           ... *
+                    // <=2.0.0-pre / *           ... null
+                    // *           / <2.0.0      ... *
+                    // *           / <2.0.0-pre  ... null
+                    // *           / <=2.0.0     ... *
+                    // *           / <=2.0.0-pre ... null
+                    // *           / *           ... *
                     if (!(semverA instanceof semver.SemVer)) {
+                        if (isPrerelease(semverB)) {
+                            return null;
+                        }
                         return a;
                     } else if (!(semverB instanceof semver.SemVer)) {
+                        if (isPrerelease(semverA)) {
+                            return null;
+                        }
                         return b;
+                    }
+
+                    // <=1.2.3-alpha / <=1.2.4-alpha ... null
+                    // <=1.9.0-pre   / <=0.0.0       ... null
+                    if (
+                        isPrerelease(semverA) &&
+                        isPrerelease(semverB) &&
+                        semverA.compareMain(semverB) !== 0
+                    ) {
+                        return null;
                     }
 
                     const semverCmp = semver.compare(semverA, semverB);
@@ -181,7 +222,9 @@ export class SingleRange implements SingleRangeInterface {
                     }
                 })(this.upperBound, singleRange.upperBound);
 
-                return new SingleRange(lowerBound, upperBound);
+                if (lowerBound && upperBound) {
+                    return new SingleRange(lowerBound, upperBound);
+                }
             }
         }
         return null;
