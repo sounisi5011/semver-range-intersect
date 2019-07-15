@@ -289,6 +289,29 @@ test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
             input.join(' || '),
         );
     });
+[...permutations(['^1.2.3-alpha', '^1.2.4'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(validateOutputRangeMacro, [input.join(' || ')], '^1.2.3-alpha');
+    });
+[...permutations(['^1.2.3', '^1.2.4-beta'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['>1.2.3-alpha', '>1.2.4-alpha', '>1.2.6-alpha'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
 [...permutations(['>=1.2.3-alpha', '>=1.2.4-alpha', '>=1.2.6-alpha'])]
     .filter(uniqueFilter)
     .forEach(input => {
@@ -298,10 +321,40 @@ test(validateOutputRangeMacro, ['^1.9.0-alpha', '*', '^1.9.0-beta'], '^1.9.0');
             input.join(' || '),
         );
     });
+[...permutations(['<1.2.3-alpha', '<1.2.4-alpha', '<1.2.6-alpha'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['<=1.2.3-alpha', '<=1.2.4-alpha', '<=1.2.6-alpha'])]
+    .filter(uniqueFilter)
+    .forEach(input => {
+        test(
+            validateOutputRangeMacro,
+            [input.join(' || ')],
+            input.join(' || '),
+        );
+    });
+[...permutations(['*', '>1.2.3-0'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
 [...permutations(['*', '>=1.2.3-0'])].filter(uniqueFilter).forEach(input => {
     test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
 });
+[...permutations(['*', '<=1.2.3-0'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+[...permutations(['*', '<1.2.3-0'])].filter(uniqueFilter).forEach(input => {
+    test(validateOutputRangeMacro, [input.join(' || ')], input.join(' || '));
+});
+test(validateOutputRangeMacro, ['*', '>1.2.3-0'], '>1.2.3');
 test(validateOutputRangeMacro, ['*', '>=1.2.3-0'], '>=1.2.3');
+test(validateOutputRangeMacro, ['*', '<=1.2.3-0'], '<=1.2.3');
+test(validateOutputRangeMacro, ['*', '<1.2.3-0'], '<1.2.3');
 
 // Note: I am not sure if this test is correct
 [
