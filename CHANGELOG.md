@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.x]
+## [0.3.1] (2019-07-20 UTC / 2019-07-21 JST)
 
 ### Documentation
 
@@ -21,7 +21,7 @@
 * `husky`
     * [#37] - `3.0.0` -> `3.0.1`
 
-[0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.0...HEAD
+[0.3.1]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.0...v0.3.1
 [#37]: https://github.com/sounisi5011/semver-range-intersect/pull/37
 [#38]: https://github.com/sounisi5011/semver-range-intersect/pull/38
 [#39]: https://github.com/sounisi5011/semver-range-intersect/pull/39
