@@ -10,11 +10,14 @@
 
 #### devDependencies
 
+* `eslint-plugin-import`
+    * [#38] - `2.18.0` -> `2.18.2`
 * `husky`
     * [#37] - `3.0.0` -> `3.0.1`
 
 [0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.0...HEAD
 [#37]: https://github.com/sounisi5011/semver-range-intersect/pull/37
+[#38]: https://github.com/sounisi5011/semver-range-intersect/pull/38
 [#39]: https://github.com/sounisi5011/semver-range-intersect/pull/39
 
 ## [0.3.0] (2019-07-15 UTC / 2019-07-16 JST)
