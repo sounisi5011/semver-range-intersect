@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.x]
+
+### Documentation
+
+* [#39] - Add Type Definitions Badge
+
+[0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.0...HEAD
+[#39]: https://github.com/sounisi5011/semver-range-intersect/pull/39
+
 ## [0.3.0] (2019-07-15 UTC / 2019-07-16 JST)
 
 ### Bug Fixes
