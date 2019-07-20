@@ -6,6 +6,12 @@
 
 * [#39] - Add Type Definitions Badge
 
+### Supported Node version
+
+`8.12.0 - 8.x || 10.0.0 - x.x` -> `8.3.0 - x.x`
+
+* [#40] - Downgrade supported Node version
+
 ### Updated Dependencies
 
 #### devDependencies
@@ -16,6 +22,7 @@
 [0.x]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.0...HEAD
 [#37]: https://github.com/sounisi5011/semver-range-intersect/pull/37
 [#39]: https://github.com/sounisi5011/semver-range-intersect/pull/39
+[#40]: https://github.com/sounisi5011/semver-range-intersect/pull/40
 
 ## [0.3.0] (2019-07-15 UTC / 2019-07-16 JST)
 
