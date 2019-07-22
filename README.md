@@ -4,6 +4,7 @@
 [![GitHub License](https://img.shields.io/github/license/sounisi5011/semver-range-intersect.svg)][github-license]
 ![](https://img.shields.io/node/v/semver-range-intersect.svg)
 ![Type Definitions: TypeScript](https://img.shields.io/npm/types/semver-range-intersect.svg)
+[![Dependencies Status](https://david-dm.org/sounisi5011/semver-range-intersect/status.svg)](https://david-dm.org/sounisi5011/semver-range-intersect)
 [![Build Status](https://travis-ci.com/sounisi5011/semver-range-intersect.svg?branch=master)](https://travis-ci.com/sounisi5011/semver-range-intersect)
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/f6e23b313a631c54ac90/maintainability)](https://codeclimate.com/github/sounisi5011/semver-range-intersect/maintainability)
 
