@@ -1,5 +1,19 @@
 # Change Log
 
+## [Unreleased]
+
+### Updated Dependencies
+
+#### devDependencies
+
+* `@typescript-eslint/eslint-plugin`
+    * [#42] - `1.12.0` -> `1.13.0`
+* `@typescript-eslint/parser`
+    * [#42] - `1.12.0` -> `1.13.0`
+
+[Unreleased]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.1...HEAD
+[#42]: https://github.com/sounisi5011/semver-range-intersect/pull/42
+
 ## [0.3.1] (2019-07-20 UTC / 2019-07-21 JST)
 
 ### Documentation
