@@ -14,6 +14,8 @@
     * [#42] - `1.12.0` -> `1.13.0`
 * `@typescript-eslint/parser`
     * [#42] - `1.12.0` -> `1.13.0`
+* `package-version-git-tag`
+    * [#49] - `1.0.0` -> `1.1.0`
 
 ### Others
 
@@ -23,6 +25,7 @@
 [#42]: https://github.com/sounisi5011/semver-range-intersect/pull/42
 [#43]: https://github.com/sounisi5011/semver-range-intersect/pull/43
 [#44]: https://github.com/sounisi5011/semver-range-intersect/pull/44
+[#49]: https://github.com/sounisi5011/semver-range-intersect/pull/49
 
 ## [0.3.1] (2019-07-20 UTC / 2019-07-21 JST)
 
