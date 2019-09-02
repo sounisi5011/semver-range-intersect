@@ -12,8 +12,10 @@
 
 * `@typescript-eslint/eslint-plugin`
     * [#42] - `1.12.0` -> `1.13.0`
+    * [#52] - `1.13.0` -> `2.0.0`
 * `@typescript-eslint/parser`
     * [#42] - `1.12.0` -> `1.13.0`
+    * [#52] - `1.13.0` -> `2.0.0`
 * `package-version-git-tag`
     * [#49] - `1.0.0` -> `1.1.0`
 
@@ -28,6 +30,7 @@
 [#44]: https://github.com/sounisi5011/semver-range-intersect/pull/44
 [#49]: https://github.com/sounisi5011/semver-range-intersect/pull/49
 [#50]: https://github.com/sounisi5011/semver-range-intersect/pull/50
+[#52]: https://github.com/sounisi5011/semver-range-intersect/pull/52
 
 ## [0.3.1] (2019-07-20 UTC / 2019-07-21 JST)
 
