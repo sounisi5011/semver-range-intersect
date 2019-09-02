@@ -16,6 +16,8 @@
 * `@typescript-eslint/parser`
     * [#42] - `1.12.0` -> `1.13.0`
     * [#52] - `1.13.0` -> `2.0.0`
+* `eslint`
+    * [#4] - `5.16.0` -> `6.3.0`
 * `package-version-git-tag`
     * [#49] - `1.0.0` -> `1.1.0`
 
@@ -25,6 +27,7 @@
 * [#50] - Setting Renovate to follow Emoji Prefix
 
 [Unreleased]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.1...HEAD
+[#4]:  https://github.com/sounisi5011/semver-range-intersect/pull/4
 [#42]: https://github.com/sounisi5011/semver-range-intersect/pull/42
 [#43]: https://github.com/sounisi5011/semver-range-intersect/pull/43
 [#44]: https://github.com/sounisi5011/semver-range-intersect/pull/44
