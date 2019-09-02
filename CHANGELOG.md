@@ -18,6 +18,8 @@
     * [#52] - `1.13.0` -> `2.0.0`
 * `eslint`
     * [#4] - `5.16.0` -> `6.3.0`
+* `eslint-config-prettier`
+    * [#54] - `6.0.0` -> `6.1.0`
 * `eslint-config-standard`
     * [#55] - `12.0.0` -> `14.1.0`
 * `eslint-plugin-node`
@@ -40,6 +42,7 @@
 [#49]: https://github.com/sounisi5011/semver-range-intersect/pull/49
 [#50]: https://github.com/sounisi5011/semver-range-intersect/pull/50
 [#52]: https://github.com/sounisi5011/semver-range-intersect/pull/52
+[#54]: https://github.com/sounisi5011/semver-range-intersect/pull/54
 [#55]: https://github.com/sounisi5011/semver-range-intersect/pull/55
 [#56]: https://github.com/sounisi5011/semver-range-intersect/pull/56
 [#59]: https://github.com/sounisi5011/semver-range-intersect/pull/59
