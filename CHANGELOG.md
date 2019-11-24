@@ -33,6 +33,7 @@
 
 * [#44] - Setting Renovate to follow Emoji Prefix
 * [#50] - Setting Renovate to follow Emoji Prefix
+* [#73] - Renovate package groups
 
 [Unreleased]: https://github.com/sounisi5011/semver-range-intersect/compare/v0.3.1...HEAD
 [#4]:  https://github.com/sounisi5011/semver-range-intersect/pull/4
@@ -46,6 +47,7 @@
 [#55]: https://github.com/sounisi5011/semver-range-intersect/pull/55
 [#56]: https://github.com/sounisi5011/semver-range-intersect/pull/56
 [#59]: https://github.com/sounisi5011/semver-range-intersect/pull/59
+[#73]: https://github.com/sounisi5011/semver-range-intersect/pull/73
 
 ## [0.3.1] (2019-07-20 UTC / 2019-07-21 JST)
 

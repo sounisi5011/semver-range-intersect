@@ -9,6 +9,41 @@
     {
       "updateTypes": ["rollback"],
       "commitMessagePrefix": "\u2B07\uFE0F"
+    },
+    {
+      "packageNames": ["eslint"],
+      "packagePatterns": ["^@typescript-eslint/", "^eslint-"],
+      "groupName": "dependencies: eslint packages",
+      "groupSlug": "eslint-packages"
+    },
+    {
+      "packageNames": [
+        "husky",
+        "lint-staged",
+        "prettier",
+        "prettier-package-json",
+        "sort-package-json"
+      ],
+      "groupName": "dependencies: code formatter packages",
+      "groupSlug": "code-formatter-packages"
+    },
+    {
+      "packageNames": ["ava", "fast-deep-equal", "iter-tools", "ts-node"],
+      "groupName": "dependencies: test packages",
+      "groupSlug": "tester-packages"
+    },
+    {
+      "packageNames": [
+        "@sounisi5011/check-peer-deps",
+        "can-npm-publish",
+        "del-cli",
+        "git-branch-is",
+        "is-git-status-clean",
+        "npm-run-all",
+        "package-version-git-tag"
+      ],
+      "groupName": "dependencies: npm-scripts packages",
+      "groupSlug": "npm-scripts-packages"
     }
   ]
 }
